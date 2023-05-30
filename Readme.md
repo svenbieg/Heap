@@ -10,7 +10,9 @@ Free space is mapped by size and by offset, so the smallest free block top most 
 
 <p>
 Some parts are still missing. I'm going to make the map re-entrant, so the heap won't grow that fast anymore.<br />
-There seems to be no problem, freeing pages can be cached in the free pages itself. And allocating can be made passive not moving anything in the tree, setting zeros and dirty-flags. The initial thread then cleans up the structure while coming down from the lowest level.<br />
+Freeing pages can be cached in the free pages itself. And allocating can be made passive not moving anything in the tree, setting zeros and dirty-flags.<br />
+I'm still not sure about dead-locks, maybe there is an endless loop i never experienced.
+
 <br />
 Best regards,<br />
 <br />
