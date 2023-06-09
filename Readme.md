@@ -11,7 +11,7 @@ Free space is mapped by size and by offset, so the smallest free block top most 
 <p>
 
 I'm still not sure about dead-locks, maybe there is an endless loop i never experienced.<br />
-Please use at Your own risk!
+Please use at Your own risk!<br />
 <br />
 Best regards,<br />
 <br />
