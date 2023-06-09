@@ -104,7 +104,7 @@ assert(cluster_group_get_child_count(child)==0);
 for(uint16_t u=at; u+1<child_count; u++)
 	group->children[u]=group->children[u+1];
 cluster_group_set_child_count((cluster_group_t*)group, child_count-1);
-heap_free_internal(heap, child);
+heap_free_to_cache(heap, child);
 }
 
 void parent_group_remove_groups(parent_group_t* group, uint16_t at, uint16_t count)

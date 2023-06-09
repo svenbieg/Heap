@@ -46,7 +46,7 @@ size=heap_block_calc_size(size);
 void* buf=heap_alloc_from_map(heap, size);
 if(buf)
 	{
-	heap_free_blocks(heap);
+	heap_free_cache(heap);
 	return buf;
 	}
 return heap_alloc_from_foot(heap, size);
@@ -57,8 +57,8 @@ void heap_free(heap_handle_t heap, void* buf)
 assert(heap!=NULL);
 if(!buf)
 	return;
-heap_free_buffer(heap, buf);
-heap_free_blocks(heap);
+heap_free_to_map(heap, buf);
+heap_free_cache(heap);
 }
 
 
@@ -66,7 +66,7 @@ heap_free_blocks(heap);
 // Internal
 //==========
 
-void* heap_alloc_from_blocks(heap_handle_t heap, size_t size)
+void* heap_alloc_from_cache(heap_handle_t heap, size_t size)
 {
 heap_t* heap_ptr=(heap_t*)heap;
 size_t free_block=heap_ptr->free_block;
@@ -92,7 +92,7 @@ void* heap_alloc_from_foot(heap_handle_t heap, size_t size)
 {
 heap_t* heap_ptr=(heap_t*)heap;
 if(heap_ptr->used+size>heap_ptr->size)
-	return false;
+	return NULL;
 heap_block_info_t info;
 info.offset=(size_t)heap+heap_ptr->used;
 info.size=size;
@@ -114,26 +114,29 @@ if(free_size>=3*sizeof(size_t))
 	heap_block_info_t free_info;
 	free_info.offset=info.offset+size;
 	free_info.size=free_size;
-	free_info.free=true;
-	heap_block_init(heap, &free_info);
-	block_map_add_block(heap, &heap_ptr->map_free, &free_info);
+	free_info.free=false;
+	void* free_buf=heap_block_init(heap, &free_info);
+	heap_free_to_cache(heap, free_buf);
 	info.size=size;
 	}
-heap_ptr->free-=size;
 info.free=false;
+heap_ptr->free-=size;
 return heap_block_init(heap, &info);
 }
 
 void* heap_alloc_internal(heap_handle_t heap, size_t size)
 {
 size=heap_block_calc_size(size);
-void* buf=heap_alloc_from_blocks(heap, size);
+void* buf=heap_alloc_from_cache(heap, size);
+if(buf)
+	return buf;
+buf=heap_alloc_from_map(heap, size);
 if(buf)
 	return buf;
 return heap_alloc_from_foot(heap, size);
 }
 
-void heap_free_blocks(heap_handle_t heap)
+void heap_free_cache(heap_handle_t heap)
 {
 heap_t* heap_ptr=(heap_t*)heap;
 while(heap_ptr->free_block)
@@ -144,12 +147,20 @@ while(heap_ptr->free_block)
 		{
 		size_t* buf=(size_t*)heap_block_get_pointer(free_block);
 		free_block=*buf;
-		heap_free_buffer(heap, buf);
+		heap_free_to_map(heap, buf);
 		}
 	}
 }
 
-void heap_free_buffer(heap_handle_t heap, void* buf)
+void heap_free_to_cache(heap_handle_t heap, void* buf)
+{
+heap_t* heap_ptr=(heap_t*)heap;
+size_t* body_ptr=(size_t*)buf;
+*body_ptr=heap_ptr->free_block;
+heap_ptr->free_block=heap_block_get_offset(buf);
+}
+
+void heap_free_to_map(heap_handle_t heap, void* buf)
 {
 heap_t* heap_ptr=(heap_t*)heap;
 heap_block_chain_t info;
@@ -183,13 +194,4 @@ info.current.size=size;
 info.current.free=true;
 heap_block_init(heap, &info.current);
 block_map_add_block(heap, &heap_ptr->map_free, &info.current);
-}
-
-void heap_free_internal(heap_handle_t heap, void* buf)
-{
-heap_t* heap_ptr=(heap_t*)heap;
-size_t* body_ptr=(size_t*)buf;
-*body_ptr=heap_ptr->free_block;
-body_ptr--;
-heap_ptr->free_block=(size_t)body_ptr;
 }

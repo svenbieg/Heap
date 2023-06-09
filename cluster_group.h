@@ -23,8 +23,10 @@ union
 	{
 	struct
 		{
-		uint16_t level;
-		uint16_t child_count;
+		uint32_t dirty: 1;
+		uint32_t locked: 1;
+		uint32_t level: 14;
+		uint32_t child_count: 16;
 		};
 	uint32_t value;
 	};
@@ -45,6 +47,8 @@ void cluster_group_init(cluster_group_t* group, uint16_t level, uint16_t child_c
 uint16_t cluster_group_get_child_count(cluster_group_t* group);
 size_t cluster_group_get_item_count(cluster_group_t* group);
 uint16_t cluster_group_get_level(cluster_group_t* group);
+bool cluster_group_is_dirty(cluster_group_t* group);
+bool cluster_group_is_locked(cluster_group_t* group);
 
 
 //==============
@@ -52,5 +56,8 @@ uint16_t cluster_group_get_level(cluster_group_t* group);
 //==============
 
 void cluster_group_set_child_count(cluster_group_t* group, uint16_t child_count);
+void cluster_group_set_dirty(cluster_group_t* group, bool dirty);
+void cluster_group_set_locked(cluster_group_t* group, bool lock);
+
 
 #endif // _CLUSTER_GROUP_H

@@ -42,23 +42,59 @@ return ((offset_index_parent_group_t*)group)->last;
 
 bool offset_index_group_add_offset(heap_handle_t heap, offset_index_group_t* group, size_t offset, bool again)
 {
+bool passive=cluster_group_is_locked((cluster_group_t*)group);
+if(!passive)
+	cluster_group_set_locked((cluster_group_t*)group, true);
+bool added=false;
 if(cluster_group_get_level(group)==0)
-	return offset_index_item_group_add_offset((offset_index_item_group_t*)group, offset);
-return offset_index_parent_group_add_offset(heap, (offset_index_parent_group_t*)group, offset, again);
+	{
+	added=offset_index_item_group_add_offset((offset_index_item_group_t*)group, offset, passive);
+	}
+else
+	{
+	added=offset_index_parent_group_add_offset(heap, (offset_index_parent_group_t*)group, offset, again, passive);
+	}
+if(!passive)
+	cluster_group_set_locked((cluster_group_t*)group, false);
+return added;
 }
 
 bool offset_index_group_remove_offset(heap_handle_t heap, offset_index_group_t* group, size_t offset)
 {
+bool passive=cluster_group_is_locked((cluster_group_t*)group);
+if(!passive)
+	cluster_group_set_locked((cluster_group_t*)group, true);
+bool removed=false;
 if(cluster_group_get_level(group)==0)
-	return offset_index_item_group_remove_offset((offset_index_item_group_t*)group, offset);
-return offset_index_parent_group_remove_offset(heap, (offset_index_parent_group_t*)group, offset);
+	{
+	removed=offset_index_item_group_remove_offset((offset_index_item_group_t*)group, offset, passive);
+	}
+else
+	{
+	removed=offset_index_parent_group_remove_offset(heap, (offset_index_parent_group_t*)group, offset, passive);
+	}
+if(!passive)
+	cluster_group_set_locked((cluster_group_t*)group, false);
+return removed;
 }
 
 size_t offset_index_group_remove_offset_at(heap_handle_t heap, offset_index_group_t* group, size_t at)
 {
+bool passive=cluster_group_is_locked((cluster_group_t*)group);
+if(!passive)
+	cluster_group_set_locked((cluster_group_t*)group, true);
+size_t removed=0;
 if(cluster_group_get_level(group)==0)
-	return offset_index_item_group_remove_offset_at((offset_index_item_group_t*)group, at);
-return offset_index_parent_group_remove_offset_at(heap, (offset_index_parent_group_t*)group, at);
+	{
+	removed=offset_index_item_group_remove_offset_at((offset_index_item_group_t*)group, at, passive);
+	}
+else
+	{
+	removed=offset_index_parent_group_remove_offset_at(heap, (offset_index_parent_group_t*)group, at, passive);
+	}
+if(!passive)
+	cluster_group_set_locked((cluster_group_t*)group, false);
+return removed;
 }
 
 
@@ -125,8 +161,9 @@ return &group->items[child_count-1];
 
 // Modification
 
-bool offset_index_item_group_add_offset(offset_index_item_group_t* group, size_t offset)
+bool offset_index_item_group_add_offset(offset_index_item_group_t* group, size_t offset, bool passive)
 {
+assert(!passive);
 bool exists=false;
 uint16_t pos=offset_index_item_group_get_item_pos(group, offset, &exists);
 assert(!exists);
@@ -169,8 +206,9 @@ cluster_group_set_child_count((cluster_group_t*)group, child_count-1);
 return offset;
 }
 
-bool offset_index_item_group_remove_offset(offset_index_item_group_t* group, size_t offset)
+bool offset_index_item_group_remove_offset(offset_index_item_group_t* group, size_t offset, bool passive)
 {
+assert(!passive);
 bool exists=false;
 uint16_t pos=offset_index_item_group_get_item_pos(group, offset, &exists);
 assert(exists);
@@ -180,8 +218,9 @@ offset_index_item_group_remove_item(group, pos);
 return true;
 }
 
-size_t offset_index_item_group_remove_offset_at(offset_index_item_group_t* group, size_t at)
+size_t offset_index_item_group_remove_offset_at(offset_index_item_group_t* group, size_t at, bool passive)
 {
+assert(!passive);
 uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
 assert(at<child_count);
 return offset_index_item_group_remove_item(group, (uint16_t)at);
@@ -309,8 +348,9 @@ return 1;
 
 // Modification
 
-bool offset_index_parent_group_add_offset(heap_handle_t heap, offset_index_parent_group_t* group, size_t offset, bool again)
+bool offset_index_parent_group_add_offset(heap_handle_t heap, offset_index_parent_group_t* group, size_t offset, bool again, bool passive)
 {
+assert(!passive);
 bool added=offset_index_parent_group_add_offset_internal(heap, group, offset, again);
 if(added)
 	{
@@ -453,8 +493,9 @@ parent_group_remove_groups((parent_group_t*)group, at, count);
 offset_index_parent_group_update_bounds(group);
 }
 
-bool offset_index_parent_group_remove_offset(heap_handle_t heap, offset_index_parent_group_t* group, size_t offset)
+bool offset_index_parent_group_remove_offset(heap_handle_t heap, offset_index_parent_group_t* group, size_t offset, bool passive)
 {
+assert(!passive);
 uint16_t pos=0;
 uint16_t count=offset_index_parent_group_get_item_pos(group, offset, &pos, true);
 assert(count==1);
@@ -470,8 +511,9 @@ if(offset_index_group_remove_offset(heap, group->children[pos], offset))
 return false;
 }
 
-size_t offset_index_parent_group_remove_offset_at(heap_handle_t heap, offset_index_parent_group_t* group, size_t at)
+size_t offset_index_parent_group_remove_offset_at(heap_handle_t heap, offset_index_parent_group_t* group, size_t at, bool passive)
 {
+assert(!passive);
 uint16_t pos=parent_group_get_group((parent_group_t*)group, &at);
 assert(pos<CLUSTER_GROUP_SIZE);
 size_t offset=offset_index_group_remove_offset_at(heap, group->children[pos], at);
@@ -582,7 +624,7 @@ if(offset_index_group_add_offset(heap, index->root, offset, false))
 	return true;
 if(!offset_index_lift_root(heap, index))
 	return false;
-return offset_index_parent_group_add_offset(heap, (offset_index_parent_group_t*)index->root, offset, true);
+return offset_index_group_add_offset(heap, index->root, offset, true);
 }
 
 void offset_index_drop_root(heap_handle_t heap, offset_index_t* index)
@@ -595,7 +637,7 @@ if(level==0)
 	if(child_count==0)
 		{
 		index->root=NULL;
-		heap_free_internal(heap, root);
+		heap_free_to_cache(heap, root);
 		}
 	return;
 	}
@@ -603,7 +645,7 @@ if(child_count>1)
 	return;
 offset_index_parent_group_t* parent_group=(offset_index_parent_group_t*)root;
 index->root=parent_group->children[0];
-heap_free_internal(heap, root);
+heap_free_to_cache(heap, root);
 }
 
 bool offset_index_lift_root(heap_handle_t heap, offset_index_t* index)
@@ -623,6 +665,7 @@ if(offset_index_group_remove_offset(heap, index->root, offset))
 
 size_t offset_index_remove_offset_at(heap_handle_t heap, offset_index_t* index, size_t at)
 {
+assert(index->root);
 size_t offset=offset_index_group_remove_offset_at(heap, index->root, at);
 offset_index_drop_root(heap, index);
 return offset;

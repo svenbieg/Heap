@@ -101,10 +101,10 @@ void heap_block_get_info(heap_handle_t heap, void* ptr, heap_block_info_t* info)
 heap_t* heap_ptr=(heap_t*)heap;
 info->offset=heap_block_get_offset(ptr);
 assert(info->offset>=(size_t)heap+sizeof(heap_t));
-assert(info->offset<(size_t)heap+heap_ptr->size);
+assert(info->offset<(size_t)heap+heap_ptr->used);
 size_t* head_ptr=(size_t*)info->offset;
 info->header=*head_ptr;
 assert(info->size>=3*sizeof(size_t));
-assert(info->offset+info->size<=(size_t)heap+heap_ptr->size);
+assert(info->offset+info->size<=(size_t)heap+heap_ptr->used);
 assert(*((size_t*)(info->offset+info->size-sizeof(size_t)))==*head_ptr);
 }

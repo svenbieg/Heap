@@ -19,4 +19,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <Windows.h>
+#undef assert
+#define assert(x) if(!(x))RaiseException(ERROR_SUCCESS, 0, 0, 0);
+
 #endif

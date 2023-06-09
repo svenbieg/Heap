@@ -69,13 +69,12 @@ size_t free_block;
 block_map_t map_free;
 }heap_t;
 
-void* heap_alloc_from_blocks(heap_handle_t heap, size_t size);
+void* heap_alloc_from_cache(heap_handle_t heap, size_t size);
 void* heap_alloc_from_foot(heap_handle_t heap, size_t size);
 void* heap_alloc_from_map(heap_handle_t heap, size_t size);
 void* heap_alloc_internal(heap_handle_t heap, size_t size);
-void heap_free_blocks(heap_handle_t heap);
-void heap_free_buffer(heap_handle_t heap, void* buf);
-void heap_free_internal(heap_handle_t heap, void* buf);
-
+void heap_free_cache(heap_handle_t heap);
+void heap_free_to_cache(heap_handle_t heap, void* buf);
+void heap_free_to_map(heap_handle_t heap, void* buf);
 
 #endif // _HEAP_PRIVATE_H
