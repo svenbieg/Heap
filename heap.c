@@ -171,17 +171,17 @@ size_t size=info.current.size;
 assert(offset>=(size_t)heap);
 assert(offset<heap_end);
 assert(offset+size<=heap_end);
-if(!info.next.offset)
-	{
-	heap_ptr->free+=size;
-	heap_ptr->used-=size;
-	return;
-	}
 if(info.previous.free)
 	{
 	offset=info.previous.offset;
 	size+=info.previous.size;
 	block_map_remove_block(heap, &heap_ptr->map_free, &info.previous);
+	}
+if(!info.next.offset)
+	{
+	heap_ptr->free+=size;
+	heap_ptr->used-=size;
+	return;
 	}
 if(info.next.free)
 	{
