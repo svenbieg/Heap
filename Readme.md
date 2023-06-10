@@ -9,9 +9,7 @@ Free space is mapped by size and by offset, so the smallest free block top most 
 <br />
 
 <p>
-You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.<br />
-<br />
-There is still an opportunity to move internal data-structures away from the end of the heap, but i don't need this by now.<br />
+You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.
 <br /><br />
 Best regards,<br />
 <br />
