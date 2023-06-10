@@ -26,8 +26,8 @@
 typedef cluster_group_t offset_index_group_t;
 
 // Access
-size_t* offset_index_group_get_first_offset(offset_index_group_t* group);
-size_t* offset_index_group_get_last_offset(offset_index_group_t* group);
+size_t offset_index_group_get_first_offset(offset_index_group_t* group);
+size_t offset_index_group_get_last_offset(offset_index_group_t* group);
 
 // Modification
 bool offset_index_group_add_offset(heap_handle_t heap, offset_index_group_t* group, size_t offset, bool again);
@@ -49,9 +49,9 @@ size_t items[CLUSTER_GROUP_SIZE];
 offset_index_item_group_t* offset_index_item_group_create(heap_handle_t heap);
 
 // Access
-size_t* offset_index_item_group_get_first_offset(offset_index_item_group_t* group);
+size_t offset_index_item_group_get_first_offset(offset_index_item_group_t* group);
 uint16_t offset_index_item_group_get_item_pos(offset_index_item_group_t* group, size_t offset, bool* exists_ptr);
-size_t* offset_index_item_group_get_last_offset(offset_index_item_group_t* group);
+size_t offset_index_item_group_get_last_offset(offset_index_item_group_t* group);
 
 // Modification
 bool offset_index_item_group_add_offset(offset_index_item_group_t* group, size_t offset, bool passive);
@@ -71,8 +71,8 @@ typedef struct
 {
 cluster_group_t header;
 size_t item_count;
-size_t* first;
-size_t* last;
+size_t first_offset;
+size_t last_offset;
 offset_index_group_t* children[CLUSTER_GROUP_SIZE];
 }offset_index_parent_group_t;
 

@@ -23,18 +23,18 @@
 
 // Access
 
-size_t* offset_index_group_get_first_offset(offset_index_group_t* group)
+size_t offset_index_group_get_first_offset(offset_index_group_t* group)
 {
 if(cluster_group_get_level(group)==0)
 	return offset_index_item_group_get_first_offset((offset_index_item_group_t*)group);
-return ((offset_index_parent_group_t*)group)->first;
+return ((offset_index_parent_group_t*)group)->first_offset;
 }
 
-size_t* offset_index_group_get_last_offset(offset_index_group_t* group)
+size_t offset_index_group_get_last_offset(offset_index_group_t* group)
 {
 if(cluster_group_get_level(group)==0)
 	return offset_index_item_group_get_last_offset((offset_index_item_group_t*)group);
-return ((offset_index_parent_group_t*)group)->last;
+return ((offset_index_parent_group_t*)group)->last_offset;
 }
 
 
@@ -117,45 +117,37 @@ return group;
 
 // Access
 
-size_t* offset_index_item_group_get_first_offset(offset_index_item_group_t* group)
+size_t offset_index_item_group_get_first_offset(offset_index_item_group_t* group)
 {
 uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
 if(child_count==0)
-	return NULL;
-return group->items;
+	return 0;
+return group->items[0];
 }
 
 uint16_t offset_index_item_group_get_item_pos(offset_index_item_group_t* group, size_t offset, bool* exists_ptr)
 {
 uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
-uint16_t start=0;
-uint16_t end=child_count;
-while(start<end)
+for(uint16_t pos=0; pos<child_count; pos++)
 	{
-	uint16_t pos=start+(end-start)/2;
 	size_t item=group->items[pos];
+	if(item==offset)
+		{
+		*exists_ptr=true;
+		return pos;
+		}
 	if(item>offset)
-		{
-		end=pos;
-		continue;
-		}
-	if(item<offset)
-		{
-		start=pos+1;
-		continue;
-		}
-	*exists_ptr=true;
-	return pos;
+		return pos;
 	}
-return start;
+return child_count;
 }
 
-size_t* offset_index_item_group_get_last_offset(offset_index_item_group_t* group)
+size_t offset_index_item_group_get_last_offset(offset_index_item_group_t* group)
 {
 uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
 if(child_count==0)
-	return NULL;
-return &group->items[child_count-1];
+	return 0;
+return group->items[child_count-1];
 }
 
 
@@ -249,8 +241,8 @@ offset_index_parent_group_t* group=(offset_index_parent_group_t*)heap_alloc_inte
 if(group==NULL)
 	return NULL;
 cluster_group_init((cluster_group_t*)group, level, 0);
-group->first=NULL;
-group->last=NULL;
+group->first_offset=0;
+group->last_offset=0;
 group->item_count=0;
 return group;
 }
@@ -262,8 +254,8 @@ if(group==NULL)
 	return NULL;
 uint16_t child_level=cluster_group_get_level(child);
 cluster_group_init((cluster_group_t*)group, child_level+1, 1);
-group->first=offset_index_group_get_first_offset(child);
-group->last=offset_index_group_get_last_offset(child);
+group->first_offset=offset_index_group_get_first_offset(child);
+group->last_offset=offset_index_group_get_last_offset(child);
 group->item_count=cluster_group_get_item_count((cluster_group_t*)child);
 group->children[0]=child;
 return group;
@@ -275,74 +267,36 @@ return group;
 uint16_t offset_index_parent_group_get_item_pos(offset_index_parent_group_t* group, size_t offset, uint16_t* pos_ptr, bool must_exist)
 {
 uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
-uint16_t start=0;
-uint16_t end=child_count;
-size_t* first_ptr=NULL;
-size_t* last_ptr=NULL;
-int16_t empty=0;
-while(start<end)
+uint16_t pos=0;
+for(; pos<child_count; pos++)
 	{
-	uint16_t pos=start+(end-start)/2+empty;
-	first_ptr=offset_index_group_get_first_offset(group->children[pos]);
-	if(first_ptr==NULL)
-		{
-		if(empty<0)
-			{
-			empty--;
-			if((end-start)/2+empty<start)
-				break;
-			continue;
-			}
-		empty++;
-		if((end-start)/2+empty>=end)
-			{
-			empty=-1;
-			if((end-start)/2+empty<start)
-				break;
-			}
+	size_t first_offset=offset_index_group_get_first_offset(group->children[pos]);
+	if(offset<first_offset)
+		break;
+	size_t last_offset=offset_index_group_get_last_offset(group->children[pos]);
+	if(offset>last_offset)
 		continue;
-		}
-	empty=0;
-	if(*first_ptr>offset)
-		{
-		end=pos;
-		continue;
-		}
-	last_ptr=offset_index_group_get_last_offset(group->children[pos]);
-	if(*last_ptr<offset)
-		{
-		start=pos+1;
-		continue;
-		}
 	*pos_ptr=pos;
 	return 1;
 	}
 if(must_exist)
 	return 0;
-if(child_count==0)
+if(child_count==1)
+	pos=0;
+if(pos==0)
 	{
-	*pos_ptr=0;
+	*pos_ptr=pos;
 	return 1;
 	}
-if(start>=child_count)
-	start=(uint16_t)(child_count-1);
-*pos_ptr=start;
-if(start>0)
+if(pos==child_count)
 	{
-	first_ptr=offset_index_group_get_first_offset(group->children[start]);
-	if(first_ptr==NULL||*first_ptr>offset)
-		{
-		*pos_ptr=(uint16_t)(start-1);
-		return 2;
-		}
+	pos--;
+	*pos_ptr=pos;
+	return 1;
 	}
-if(start+1<child_count)
-	{
-	last_ptr=offset_index_group_get_last_offset(group->children[start]);
-	if(last_ptr==NULL||*last_ptr<offset)
-		return 2;
-	}
-return 1;
+pos--;
+*pos_ptr=pos;
+return 2;
 }
 
 
@@ -564,20 +518,20 @@ void offset_index_parent_group_update_bounds(offset_index_parent_group_t* group)
 uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
 if(child_count==0)
 	{
-	group->first=NULL;
-	group->last=NULL;
+	group->first_offset=0;
+	group->last_offset=0;
 	return;
 	}
 for(uint16_t pos=0; pos<child_count; pos++)
 	{
-	group->first=offset_index_group_get_first_offset(group->children[pos]);
-	if(group->first!=NULL)
+	group->first_offset=offset_index_group_get_first_offset(group->children[pos]);
+	if(group->first_offset!=0)
 		break;
 	}
 for(uint16_t pos=child_count; pos>0; pos--)
 	{
-	group->last=offset_index_group_get_last_offset(group->children[pos-1]);
-	if(group->last!=NULL)
+	group->last_offset=offset_index_group_get_last_offset(group->children[pos-1]);
+	if(group->last_offset!=0)
 		break;
 	}
 }
