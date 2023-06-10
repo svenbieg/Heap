@@ -30,7 +30,7 @@
 	#define SIZE_BYTES 8
 #endif
 
-#define BLOCK_SIZE_MIN (4*SIZE_BYTES)
+#define BLOCK_SIZE_MIN (3*SIZE_BYTES)
 
 inline size_t align_down(size_t value, size_t align)
 {
