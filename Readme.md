@@ -13,7 +13,7 @@ I'm still not sure about dead-locks, maybe there is an endless loop i never expe
 Please use at Your own risk!<br />
 <br />
 You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.<br />
-<br />
+<br /><br />
 Best regards,<br />
 <br />
 Sven Bieg
