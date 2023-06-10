@@ -24,9 +24,13 @@
 
 #if(SIZE_MAX==0xFFFFFFFF)
 	#define SIZE_BITS 32
+	#define SIZE_BYTES 4
 #else
 	#define SIZE_BITS 64
+	#define SIZE_BYTES 8
 #endif
+
+#define BLOCK_SIZE_MIN (4*SIZE_BYTES)
 
 inline size_t align_down(size_t value, size_t align)
 {
