@@ -142,13 +142,9 @@ heap_t* heap_ptr=(heap_t*)heap;
 while(heap_ptr->free_block)
 	{
 	size_t free_block=heap_ptr->free_block;
-	heap_ptr->free_block=0;
-	while(free_block)
-		{
-		size_t* buf=(size_t*)heap_block_get_pointer(free_block);
-		free_block=*buf;
-		heap_free_to_map(heap, buf);
-		}
+	size_t* buf=(size_t*)heap_block_get_pointer(free_block);
+	heap_ptr->free_block=*buf;
+	heap_free_to_map(heap, buf);
 	}
 }
 
