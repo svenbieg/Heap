@@ -101,7 +101,6 @@ size_t last_size;
 block_map_group_t* children[CLUSTER_GROUP_SIZE];
 }block_map_parent_group_t;
 
-
 // Con-/Destructors
 block_map_parent_group_t* block_map_parent_group_create(heap_handle_t heap, uint16_t level);
 block_map_parent_group_t* block_map_parent_group_create_with_child(heap_handle_t heap, block_map_group_t* child);
