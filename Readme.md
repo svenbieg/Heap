@@ -9,9 +9,6 @@ Free space is mapped by size and by offset, so the smallest free block top most 
 <br />
 
 <p>
-I'm still not sure about dead-locks, maybe there is an endless loop i never experienced.<br />
-Please use at Your own risk!<br />
-<br />
 You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.<br />
 <br /><br />
 Best regards,<br />
