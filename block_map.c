@@ -204,7 +204,13 @@ else
 		}
 	}
 if(!passive)
-	block_map_item_group_cleanup(group);
+	{
+	if(cluster_group_is_dirty((cluster_group_t*)group))
+		{
+		block_map_item_group_cleanup(group);
+		cluster_group_set_dirty((cluster_group_t*)group, false);
+		}
+	}
 return added;
 }
 
@@ -232,8 +238,6 @@ cluster_group_set_child_count((cluster_group_t*)group, child_count+count);
 
 void block_map_item_group_cleanup(block_map_item_group_t* group)
 {
-if(!cluster_group_is_dirty((cluster_group_t*)group))
-	return;
 uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
 for(uint16_t pos=0; pos<child_count; )
 	{
@@ -249,7 +253,6 @@ for(uint16_t pos=0; pos<child_count; )
 		}
 	}
 cluster_group_set_child_count((cluster_group_t*)group, child_count);
-cluster_group_set_dirty((cluster_group_t*)group, false);
 }
 
 bool block_map_item_group_get_block(heap_handle_t heap, block_map_item_group_t* group, size_t min_size, heap_block_info_t* info, bool passive)
