@@ -82,6 +82,18 @@ while(free_block)
 		*prev_ptr=next_free;
 		return buf;
 		}
+	if(info.size>=size+BLOCK_SIZE_MIN)
+		{
+		heap_block_info_t free_info;
+		free_info.offset=free_block+size;
+		free_info.size=info.size-size;
+		free_info.free=false;
+		size_t* free_body=(size_t*)heap_block_init(heap, &free_info);
+		*free_body=next_free;
+		*prev_ptr=free_info.offset;
+		info.size=size;
+		return heap_block_init(heap, &info);
+		}
 	prev_ptr=buf;
 	free_block=next_free;
 	}
@@ -109,7 +121,7 @@ heap_block_info_t info;
 if(!block_map_get_block(heap, &heap_ptr->map_free, size, &info))
 	return NULL;
 size_t free_size=info.size-size;
-if(free_size>=3*sizeof(size_t))
+if(free_size>=BLOCK_SIZE_MIN)
 	{
 	heap_block_info_t free_info;
 	free_info.offset=info.offset+size;
