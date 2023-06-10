@@ -42,7 +42,7 @@ return head_ptr;
 
 size_t heap_block_calc_size(size_t size)
 {
-return align_up(size, sizeof(size_t))+2*sizeof(size_t);
+return align_up(size+2*sizeof(size_t), BLOCK_SIZE_MIN);
 }
 
 size_t heap_block_get_offset(void* ptr)
