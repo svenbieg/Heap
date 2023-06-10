@@ -144,7 +144,7 @@ size_t block_map_get_item_count(block_map_t* map);
 
 // Modification
 bool block_map_add_block(heap_handle_t heap, block_map_t* map, heap_block_info_t const* info);
-void block_map_drop_root(heap_handle_t heap, block_map_t* map);
+bool block_map_drop_root(heap_handle_t heap, block_map_t* map);
 bool block_map_get_block(heap_handle_t heap, block_map_t* map, size_t min_size, heap_block_info_t* info);
 bool block_map_lift_root(heap_handle_t heap, block_map_t* map);
 void block_map_remove_block(heap_handle_t heap, block_map_t* map, heap_block_info_t const* info);
