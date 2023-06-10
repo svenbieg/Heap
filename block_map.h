@@ -46,9 +46,9 @@ union
 typedef cluster_group_t block_map_group_t;
 
 // Access
-block_map_item_t* block_map_group_get_first_item(block_map_group_t* group);
+size_t block_map_group_get_first_size(block_map_group_t* group);
 block_map_item_t* block_map_group_get_item(block_map_group_t* group, size_t size);
-block_map_item_t* block_map_group_get_last_item(block_map_group_t* group);
+size_t block_map_group_get_last_size(block_map_group_t* group);
 
 // Modification
 bool block_map_group_add_block(heap_handle_t heap, block_map_group_t* group, heap_block_info_t const* info, bool again);
@@ -70,11 +70,11 @@ block_map_item_t items[CLUSTER_GROUP_SIZE];
 block_map_item_group_t* block_map_item_group_create(heap_handle_t heap);
 
 // Access
-block_map_item_t* block_map_item_group_get_first_item(block_map_item_group_t* group);
+size_t block_map_item_group_get_first_size(block_map_item_group_t* group);
 block_map_item_t* block_map_item_group_get_item(block_map_item_group_t* group, size_t size);
 block_map_item_t* block_map_item_group_get_item_at(block_map_item_group_t* group, uint16_t at);
 uint16_t block_map_item_group_get_item_pos(block_map_item_group_t* group, size_t size, bool* exists_ptr);
-block_map_item_t* block_map_item_group_get_last_item(block_map_item_group_t* group);
+size_t block_map_item_group_get_last_size(block_map_item_group_t* group);
 
 // Modification
 bool block_map_item_group_add_block(heap_handle_t heap, block_map_item_group_t* group, heap_block_info_t const* info, bool passive);
@@ -96,8 +96,8 @@ typedef struct
 {
 cluster_group_t header;
 size_t item_count;
-block_map_item_t* first;
-block_map_item_t* last;
+size_t first_size;
+size_t last_size;
 block_map_group_t* children[CLUSTER_GROUP_SIZE];
 }block_map_parent_group_t;
 
