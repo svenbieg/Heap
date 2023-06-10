@@ -2,7 +2,7 @@
 // heap.h
 //========
 
-// Heap manager sorting free blocks by size and offset.
+// Memory-manager mapping free blocks by size and by offset.
 // The smallest block top most of the heap is returned.
 
 // Copyright 2023, Sven Bieg (svenbieg@web.de)
