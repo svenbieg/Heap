@@ -9,8 +9,8 @@ Free space is mapped by size and by offset, so the smallest free block top most 
 <br />
 
 <p>
-Some parts are still missing, this implementation is not working at the moment.<br />
 I'm still not sure about dead-locks, maybe there is an endless loop i never experienced.<br />
+Please use at Your own risk!<br />
 <br />
 Best regards,<br />
 <br />
