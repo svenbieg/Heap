@@ -748,6 +748,8 @@ return true;
 bool block_map_drop_root(heap_handle_t heap, block_map_t* map)
 {
 block_map_group_t* root=map->root;
+if(cluster_group_is_locked((cluster_group_t*)root))
+	return false;
 uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)root);
 uint16_t level=cluster_group_get_level((cluster_group_t*)root);
 if(level==0)
