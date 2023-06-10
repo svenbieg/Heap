@@ -183,11 +183,6 @@ if(!exists)
 block_map_item_t* item=block_map_item_group_get_item_at(group, pos);
 bool added=false;
 assert(item->offset!=0);
-/*if(item->offset==0)
-	{
-	item->offset=info->offset;
-	return true;
-	}*/
 if(item->index)
 	{
 	offset_index_t index;
