@@ -151,6 +151,8 @@ uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
 for(uint16_t pos=0; pos<child_count; pos++)
 	{
 	block_map_item_t* item=&group->items[pos];
+	if(item->offset==0)
+		continue;
 	if(item->size==size)
 		{
 		*exists_ptr=true;
@@ -182,7 +184,6 @@ if(!exists)
 	return block_map_item_group_add_item(group, info, pos);
 block_map_item_t* item=block_map_item_group_get_item_at(group, pos);
 bool added=false;
-assert(item->offset!=0);
 if(item->index)
 	{
 	offset_index_t index;
