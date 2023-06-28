@@ -11,7 +11,7 @@ Free space is mapped by size and by offset, so the smallest free block top most 
 <p>
 You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.
 <br /><br />
-This version is not for production-use, the offset-index is still not re-enterable. This code is just a proof of concept, it will take me a few weeks to get it done.<br />
+This version is not for production-use, the offset-index is still not re-enterable. Also, the iteration has to be done twice to find bigger gaps. This code is just a proof of concept, it will take me a few weeks to get it done.<br />
 <br />
 Best regards,<br />
 <br />
