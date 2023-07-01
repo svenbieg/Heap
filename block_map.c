@@ -674,14 +674,12 @@ for(uint16_t pos=0; pos<child_count; pos++)
 	group->first_size=block_map_group_get_first_size(group->children[pos]);
 	if(group->first_size!=0)
 		break;
-	assert(0);
 	}
 for(uint16_t pos=child_count; pos>0; pos--)
 	{
 	group->last_size=block_map_group_get_last_size(group->children[pos-1]);
 	if(group->last_size!=0)
 		break;
-	assert(0);
 	}
 }
 
