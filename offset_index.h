@@ -54,11 +54,11 @@ uint16_t offset_index_item_group_get_item_pos(offset_index_item_group_t* group, 
 size_t offset_index_item_group_get_last_offset(offset_index_item_group_t* group);
 
 // Modification
-bool offset_index_item_group_add_offset(offset_index_item_group_t* group, size_t offset, bool passive);
+bool offset_index_item_group_add_offset(offset_index_item_group_t* group, size_t offset);
 void offset_index_item_group_append_items(offset_index_item_group_t* group, size_t const* items, uint16_t count);
 void offset_index_item_group_insert_items(offset_index_item_group_t* group, uint16_t at, size_t const* insert, uint16_t count);
 size_t offset_index_item_group_remove_item(offset_index_item_group_t* group, uint16_t at);
-bool offset_index_item_group_remove_offset(offset_index_item_group_t* group, size_t offset, bool passive);
+bool offset_index_item_group_remove_offset(offset_index_item_group_t* group, size_t offset);
 size_t offset_index_item_group_remove_offset_at(offset_index_item_group_t* group, size_t at, bool passive);
 void offset_index_item_group_remove_items(offset_index_item_group_t* group, uint16_t at, uint16_t count);
 
@@ -85,15 +85,16 @@ offset_index_parent_group_t* offset_index_parent_group_create_with_child(heap_ha
 uint16_t offset_index_parent_group_get_item_pos(offset_index_parent_group_t* group, size_t offset, uint16_t* pos_ptr, bool must_exist);
 
 // Modification
-bool offset_index_parent_group_add_offset(heap_handle_t heap, offset_index_parent_group_t* group, size_t offset, bool again, bool passive);
+bool offset_index_parent_group_add_offset(heap_handle_t heap, offset_index_parent_group_t* group, size_t offset, bool again);
 bool offset_index_parent_group_add_offset_internal(heap_handle_t heap, offset_index_parent_group_t* group, size_t offset, bool again);
 void offset_index_parent_group_append_groups(offset_index_parent_group_t* group, offset_index_group_t* const* append, uint16_t count);
 bool offset_index_parent_group_combine_child(heap_handle_t heap, offset_index_parent_group_t* group, uint16_t at);
+bool offset_index_parent_group_combine_children(heap_handle_t heap, offset_index_parent_group_t* group);
 void offset_index_parent_group_insert_groups(offset_index_parent_group_t* group, uint16_t at, offset_index_group_t* const* insert, uint16_t count);
 void offset_index_parent_group_move_children(offset_index_parent_group_t* group, uint16_t from, uint16_t to, uint16_t count);
 void offset_index_parent_group_move_empty_slot(offset_index_parent_group_t* group, uint16_t from, uint16_t to);
 void offset_index_parent_group_remove_groups(offset_index_parent_group_t* group, uint16_t at, uint16_t count);
-bool offset_index_parent_group_remove_offset(heap_handle_t heap, offset_index_parent_group_t* group, size_t offset, bool passive);
+bool offset_index_parent_group_remove_offset(heap_handle_t heap, offset_index_parent_group_t* group, size_t offset);
 size_t offset_index_parent_group_remove_offset_at(heap_handle_t heap, offset_index_parent_group_t* group, size_t at, bool passive);
 bool offset_index_parent_group_shift_children(offset_index_parent_group_t* group, uint16_t at, uint16_t count);
 bool offset_index_parent_group_split_child(heap_handle_t heap, offset_index_parent_group_t* group, uint16_t at);
