@@ -3,7 +3,7 @@
 <p>
 This memory-manager is based on my <a href="http://www.github.com/svenbieg/clusters">Clusters</a> sorting-algorithm.<br />
 Free space is mapped by size and by offset, so the smallest free block top most of the heap is returned.<br />
-It should speed up the system and make a garbage collector unnecessary.<br />
+This should speed up the system and make a garbage collector unnecessary.<br />
 Please use at Your own risk!
 </p><br />
 
