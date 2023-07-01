@@ -120,6 +120,7 @@ heap_t* heap_ptr=(heap_t*)heap;
 heap_block_info_t info;
 if(!block_map_get_block(heap, &heap_ptr->map_free, size, &info))
 	return NULL;
+heap_ptr->free-=info.size;
 size_t free_size=info.size-size;
 if(free_size>=BLOCK_SIZE_MIN)
 	{
@@ -132,7 +133,6 @@ if(free_size>=BLOCK_SIZE_MIN)
 	info.size=size;
 	}
 info.free=false;
-heap_ptr->free-=size;
 return heap_block_init(heap, &info);
 }
 
@@ -185,6 +185,7 @@ if(info.previous.free)
 	offset=info.previous.offset;
 	size+=info.previous.size;
 	block_map_remove_block(heap, &heap_ptr->map_free, &info.previous);
+	heap_ptr->free-=info.previous.size;
 	}
 if(!info.next.offset)
 	{
@@ -196,8 +197,9 @@ if(info.next.free)
 	{
 	size+=info.next.size;
 	block_map_remove_block(heap, &heap_ptr->map_free, &info.next);
+	heap_ptr->free-=info.next.size;
 	}
-heap_ptr->free+=info.current.size;
+heap_ptr->free+=size;
 info.current.offset=offset;
 info.current.size=size;
 info.current.free=true;
