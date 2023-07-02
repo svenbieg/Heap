@@ -252,8 +252,7 @@ uint16_t pos=block_map_item_group_get_item_pos(group, min_size, &exists);
 if(pos==child_count)
 	return false;
 block_map_item_t* item=block_map_item_group_get_item_at(group, pos);
-if(item->offset==0)
-	return false;
+assert(item->offset!=0);
 info->size=item->size;
 if(item->index)
 	{
