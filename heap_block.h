@@ -13,6 +13,13 @@
 #define _HEAP_BLOCK_H
 
 
+//=======
+// Using
+//=======
+
+#include "heap_internal.h"
+
+
 //======
 // Info
 //======

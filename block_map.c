@@ -5,15 +5,14 @@
 // Copyright 2023, Sven Bieg (svenbieg@web.de)
 // http://github.com/svenbieg/heap
 
-#include "pch.h"
-
 
 //=======
 // Using
 //=======
 
-#include <heap.h>
-#include "heap_private.h"
+#include "block_map.h"
+#include "offset_index.h"
+#include "parent_group.h"
 
 
 //=======

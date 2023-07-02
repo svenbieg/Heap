@@ -11,47 +11,6 @@
 #define _HEAP_PRIVATE_H
 
 
-//==========
-// Settings
-//==========
-
-#define CLUSTER_GROUP_SIZE 10
-
-
-//===========
-// Alignment
-//===========
-
-#if(SIZE_MAX==0xFFFFFFFF)
-	#define SIZE_BITS 32
-	#define SIZE_BYTES 4
-#else
-	#define SIZE_BITS 64
-	#define SIZE_BYTES 8
-#endif
-
-#define BLOCK_SIZE_MIN (3*SIZE_BYTES)
-
-inline size_t align_down(size_t value, size_t align)
-{
-return value&~(align-1);
-}
-
-inline size_t align_up(size_t value, size_t align)
-{
-return (value+align-1)&~(align-1);
-}
-
-
-//======================
-// Forward-Declarations
-//======================
-
-#include "cluster_group.h"
-#include "heap_block.h"
-#include "parent_group.h"
-
-
 //=======
 // Using
 //=======

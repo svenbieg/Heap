@@ -17,6 +17,7 @@
 //=======
 
 #include "cluster_group.h"
+#include "heap_private.h"
 
 
 //==============

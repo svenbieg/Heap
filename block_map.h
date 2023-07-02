@@ -16,8 +16,20 @@
 // Using
 //=======
 
-#include <heap.h>
-#include "heap_private.h"
+#include "cluster_group.h"
+#include "heap_block.h"
+
+
+//======================
+// Forward-Declarations
+//======================
+
+typedef cluster_group_t block_map_group_t;
+
+typedef struct
+{
+block_map_group_t* root;
+}block_map_t;
 
 
 //======
@@ -42,8 +54,6 @@ union
 //=======
 // Group
 //=======
-
-typedef cluster_group_t block_map_group_t;
 
 // Access
 size_t block_map_group_get_first_size(block_map_group_t* group);
@@ -129,11 +139,6 @@ void block_map_parent_group_update_bounds(block_map_parent_group_t* group);
 //=====
 // Map
 //=====
-
-typedef struct
-{
-block_map_group_t* root;
-}block_map_t;
 
 // Con-/Destructors
 void block_map_init(block_map_t* map);
