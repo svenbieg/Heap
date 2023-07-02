@@ -16,8 +16,8 @@
 // Using
 //=======
 
+#include <heap.h>
 #include "cluster_group.h"
-#include "heap_private.h"
 
 
 //==============
@@ -39,7 +39,12 @@ cluster_group_t* children[CLUSTER_GROUP_SIZE];
 //========
 
 uint16_t parent_group_get_group(parent_group_t* group, size_t* at);
-size_t parent_group_get_item_count(parent_group_t* group);
+
+inline size_t parent_group_get_item_count(parent_group_t* group)
+{
+return group->item_count;
+}
+
 int16_t parent_group_get_nearest_space(parent_group_t* group, int16_t pos);
 
 

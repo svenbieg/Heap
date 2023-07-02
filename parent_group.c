@@ -30,11 +30,6 @@ for(uint16_t u=0; u<child_count; u++)
 return CLUSTER_GROUP_SIZE;
 }
 
-size_t parent_group_get_item_count(parent_group_t* group)
-{
-return group->item_count;
-}
-
 int16_t parent_group_get_nearest_space(parent_group_t* group, int16_t pos)
 {
 int16_t child_count=(int16_t)cluster_group_get_child_count((cluster_group_t*)group);

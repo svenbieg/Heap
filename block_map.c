@@ -10,8 +10,7 @@
 // Using
 //=======
 
-#include "block_map.h"
-#include "offset_index.h"
+#include "heap_private.h"
 #include "parent_group.h"
 
 
