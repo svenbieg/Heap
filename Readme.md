@@ -12,7 +12,7 @@ It should speed up the system and make a garbage collector unnecessary.<br />
 <p>
 You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.<br />
 <br /><br />
-Please use at Your own risk! If You still face any problems You can try to increase minimal block-size.<br />
+Please use at Your own risk! If You still face any problem You can try to increase the minimal block-size.<br />
 <br />
 Best regards,<br />
 <br />
