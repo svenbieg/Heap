@@ -686,22 +686,6 @@ for(uint16_t pos=child_count; pos>0; pos--)
 //=====
 
 
-// Con-/Destructors
-
-void block_map_init(block_map_t* map)
-{
-map->root=NULL;
-}
-
-
-// Access
-
-size_t block_map_get_item_count(block_map_t* map)
-{
-return cluster_group_get_item_count((cluster_group_t*)map->root);
-}
-
-
 // Modification
 
 bool block_map_add_block(heap_handle_t heap, block_map_t* map, heap_block_info_t const* info)

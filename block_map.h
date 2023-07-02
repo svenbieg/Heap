@@ -136,10 +136,18 @@ block_map_group_t* root;
 }block_map_t;
 
 // Con-/Destructors
-void block_map_init(block_map_t* map);
+inline void block_map_init(block_map_t* map)
+{
+map->root=NULL;
+}
+
 
 // Access
-size_t block_map_get_item_count(block_map_t* map);
+inline size_t block_map_get_item_count(block_map_t* map)
+{
+return cluster_group_get_item_count((cluster_group_t*)map->root);
+}
+
 
 // Modification
 bool block_map_add_block(heap_handle_t heap, block_map_t* map, heap_block_info_t const* info);
