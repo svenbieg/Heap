@@ -82,18 +82,9 @@ return got;
 
 bool block_map_group_remove_block(heap_handle_t heap, block_map_group_t* group, heap_block_info_t const* info)
 {
-cluster_group_set_locked((cluster_group_t*)group, true);
-bool removed=false;
 if(cluster_group_get_level(group)==0)
-	{
-	removed=block_map_item_group_remove_block(heap, (block_map_item_group_t*)group, info);
-	}
-else
-	{
-	removed=block_map_parent_group_remove_block(heap, (block_map_parent_group_t*)group, info);
-	}
-cluster_group_set_locked((cluster_group_t*)group, false);
-return removed;
+	return block_map_item_group_remove_block(heap, (block_map_item_group_t*)group, info);
+return block_map_parent_group_remove_block(heap, (block_map_parent_group_t*)group, info);
 }
 
 

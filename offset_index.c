@@ -56,18 +56,9 @@ return added;
 
 bool offset_index_group_remove_offset(heap_handle_t heap, offset_index_group_t* group, size_t offset)
 {
-cluster_group_set_locked((cluster_group_t*)group, true);
-bool removed=false;
 if(cluster_group_get_level(group)==0)
-	{
-	removed=offset_index_item_group_remove_offset((offset_index_item_group_t*)group, offset);
-	}
-else
-	{
-	removed=offset_index_parent_group_remove_offset(heap, (offset_index_parent_group_t*)group, offset);
-	}
-cluster_group_set_locked((cluster_group_t*)group, false);
-return removed;
+	return offset_index_item_group_remove_offset((offset_index_item_group_t*)group, offset);
+return offset_index_parent_group_remove_offset(heap, (offset_index_parent_group_t*)group, offset);
 }
 
 size_t offset_index_group_remove_offset_at(heap_handle_t heap, offset_index_group_t* group, size_t at)
