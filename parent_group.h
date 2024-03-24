@@ -4,7 +4,7 @@
 
 // Shared functions for block_map and offset_index.
 
-// Copyright 2023, Sven Bieg (svenbieg@web.de)
+// Copyright 2024, Sven Bieg (svenbieg@web.de)
 // http://github.com/svenbieg/heap
 
 
@@ -28,8 +28,8 @@ typedef struct
 {
 cluster_group_t header;
 size_t item_count;
-void* first;
-void* last;
+size_t first;
+size_t last;
 cluster_group_t* children[CLUSTER_GROUP_SIZE];
 }parent_group_t;
 
@@ -39,12 +39,6 @@ cluster_group_t* children[CLUSTER_GROUP_SIZE];
 //========
 
 uint16_t parent_group_get_group(parent_group_t* group, size_t* at);
-
-inline size_t parent_group_get_item_count(parent_group_t* group)
-{
-return group->item_count;
-}
-
 int16_t parent_group_get_nearest_space(parent_group_t* group, int16_t pos);
 
 

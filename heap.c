@@ -2,7 +2,7 @@
 // heap.c
 //========
 
-// Copyright 2023, Sven Bieg (svenbieg@web.de)
+// Copyright 2024, Sven Bieg (svenbieg@web.de)
 // http://github.com/svenbieg/heap
 
 
@@ -49,6 +49,27 @@ if(buf)
 return heap_alloc_from_foot(heap, size);
 }
 
+void* heap_alloc_aligned(heap_handle_t heap, size_t size, size_t align)
+{
+assert(heap!=NULL);
+assert(size!=0);
+assert(align!=0);
+assert(align%sizeof(size_t)==0);
+size=heap_block_calc_size(size+align-sizeof(size_t));
+void* buf=heap_alloc_from_map(heap, size);
+if(buf)
+	{
+	heap_free_cache(heap);
+	}
+else
+	{
+	buf=heap_alloc_from_foot(heap, size);
+	}
+size_t addr=(size_t)buf;
+addr=align_up(addr, align);
+return (void*)addr;
+}
+
 void heap_free(heap_handle_t heap, void* buf)
 {
 assert(heap!=NULL);
@@ -58,44 +79,28 @@ heap_free_to_map(heap, buf);
 heap_free_cache(heap);
 }
 
+//void* heap_realloc(heap_handle_t heap, void* buf, size_t size) // Deprecated
+//{
+//assert(heap!=NULL);
+//assert(size!=0);
+//size_t block_size=heap_block_calc_size(size);
+//heap_block_info_t info;
+//heap_block_get_info(heap, buf, &info);
+//if(!heap_realloc_inplace(heap, &info, block_size))
+//	{
+//	void* moved=heap_alloc(heap, size);
+//	memcpy(moved, buf, info.size);
+//	heap_free_to_map(heap, buf);
+//	buf=moved;
+//	}
+//heap_free_cache(heap);
+//return buf;
+//}
+
 
 //==========
 // Internal
 //==========
-
-void* heap_alloc_from_cache(heap_handle_t heap, size_t size)
-{
-heap_t* heap_ptr=(heap_t*)heap;
-size_t free_block=heap_ptr->free_block;
-size_t* prev_ptr=&heap_ptr->free_block;
-while(free_block)
-	{
-	size_t* buf=heap_block_get_pointer(free_block);
-	size_t next_free=*buf;
-	heap_block_info_t info;
-	heap_block_get_info(heap, buf, &info);
-	if(info.size==size)
-		{
-		*prev_ptr=next_free;
-		return buf;
-		}
-	if(info.size>=size+BLOCK_SIZE_MIN)
-		{
-		heap_block_info_t free_info;
-		free_info.offset=free_block+size;
-		free_info.size=info.size-size;
-		free_info.free=false;
-		size_t* free_body=(size_t*)heap_block_init(heap, &free_info);
-		*free_body=next_free;
-		*prev_ptr=free_info.offset;
-		info.size=size;
-		return heap_block_init(heap, &info);
-		}
-	prev_ptr=buf;
-	free_block=next_free;
-	}
-return NULL;
-}
 
 void* heap_alloc_from_foot(heap_handle_t heap, size_t size)
 {
@@ -136,10 +141,7 @@ return heap_block_init(heap, &info);
 void* heap_alloc_internal(heap_handle_t heap, size_t size)
 {
 size=heap_block_calc_size(size);
-void* buf=heap_alloc_from_cache(heap, size);
-if(buf)
-	return buf;
-buf=heap_alloc_from_map(heap, size);
+void* buf=heap_alloc_from_map(heap, size);
 if(buf)
 	return buf;
 return heap_alloc_from_foot(heap, size);
@@ -202,4 +204,36 @@ info.current.size=size;
 info.current.free=true;
 heap_block_init(heap, &info.current);
 block_map_add_block(heap, &heap_ptr->map_free, &info.current);
+}
+
+bool heap_realloc_inplace(heap_handle_t heap, heap_block_info_t* info, size_t size)
+{
+heap_t* heap_ptr=(heap_t*)heap;
+if(info->size<size)
+	{
+	size_t next_offset=info->offset+info->size;
+	void* next_buf=heap_block_get_pointer(next_offset);
+	heap_block_info_t next_info;
+	heap_block_get_info(heap, next_buf, &next_info);
+	if(!next_info.free)
+		return false;
+	if(info->size+next_info.size<size)
+		return false;
+	block_map_remove_block(heap, &heap_ptr->map_free, &next_info);
+	heap_ptr->free-=next_info.size;
+	info->size+=next_info.size;
+	heap_block_init(heap, info);
+	}
+if(info->size>=size+BLOCK_SIZE_MIN)
+	{
+	heap_block_info_t free_info;
+	free_info.offset=info->offset+size;
+	free_info.size=info->size-size;
+	free_info.free=false;
+	void* free_buf=heap_block_init(heap, &free_info);
+	heap_free_to_cache(heap, free_buf);
+	info->size=size;
+	heap_block_init(heap, info);
+	}
+return true;
 }

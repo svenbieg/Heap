@@ -4,7 +4,7 @@
 
 // Heap platform header
 
-// Copyright 2023, Sven Bieg (svenbieg@web.de)
+// Copyright 2024, Sven Bieg (svenbieg@web.de)
 // http://github.com/svenbieg/heap
 
 #ifndef _HEAP_INTERNAL_H
@@ -19,6 +19,7 @@
 #include <heap.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 
 //==========
@@ -37,12 +38,12 @@
 
 #define BLOCK_SIZE_MIN (3*SIZE_BYTES)
 
-inline size_t align_down(size_t value, size_t align)
+static inline size_t align_down(size_t value, size_t align)
 {
 return value&~(align-1);
 }
 
-inline size_t align_up(size_t value, size_t align)
+static inline size_t align_up(size_t value, size_t align)
 {
 return (value+align-1)&~(align-1);
 }

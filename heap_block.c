@@ -2,7 +2,7 @@
 // heap_block.c
 //==============
 
-// Copyright 2023, Sven Bieg (svenbieg@web.de)
+// Copyright 2024, Sven Bieg (svenbieg@web.de)
 // http://github.com/svenbieg/heap
 
 
@@ -31,26 +31,6 @@ size_t* foot_ptr=(size_t*)(info->offset+info->size);
 foot_ptr--;
 *foot_ptr=info->header;
 return head_ptr;
-}
-
-
-//========
-// Common
-//========
-
-size_t heap_block_calc_size(size_t size)
-{
-return align_up(size, sizeof(size_t))+2*sizeof(size_t);
-}
-
-size_t heap_block_get_offset(void* ptr)
-{
-return (size_t)ptr-sizeof(size_t);
-}
-
-void* heap_block_get_pointer(size_t offset)
-{
-return (void*)(offset+sizeof(size_t));
 }
 
 

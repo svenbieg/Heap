@@ -5,7 +5,7 @@
 // Block of continuous memory on the heap.
 // Size and flags are stored twice at the head and the foot.
 
-// Copyright 2023, Sven Bieg (svenbieg@web.de)
+// Copyright 2024, Sven Bieg (svenbieg@web.de)
 // http://github.com/svenbieg/heap
 
 
@@ -57,9 +57,20 @@ void* heap_block_init(heap_handle_t heap, heap_block_info_t const* info);
 // Common
 //========
 
-size_t heap_block_calc_size(size_t size);
-size_t heap_block_get_offset(void* ptr);
-void* heap_block_get_pointer(size_t offset);
+static inline size_t heap_block_calc_size(size_t size)
+{
+return align_up(size, sizeof(size_t))+2*sizeof(size_t);
+}
+
+static inline size_t heap_block_get_offset(void* ptr)
+{
+return (size_t)ptr-sizeof(size_t);
+}
+
+static inline void* heap_block_get_pointer(size_t offset)
+{
+return (void*)(offset+sizeof(size_t));
+}
 
 
 //========
