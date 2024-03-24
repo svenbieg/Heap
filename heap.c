@@ -206,34 +206,34 @@ heap_block_init(heap, &info.current);
 block_map_add_block(heap, &heap_ptr->map_free, &info.current);
 }
 
-bool heap_realloc_inplace(heap_handle_t heap, heap_block_info_t* info, size_t size)
-{
-heap_t* heap_ptr=(heap_t*)heap;
-if(info->size<size)
-	{
-	size_t next_offset=info->offset+info->size;
-	void* next_buf=heap_block_get_pointer(next_offset);
-	heap_block_info_t next_info;
-	heap_block_get_info(heap, next_buf, &next_info);
-	if(!next_info.free)
-		return false;
-	if(info->size+next_info.size<size)
-		return false;
-	block_map_remove_block(heap, &heap_ptr->map_free, &next_info);
-	heap_ptr->free-=next_info.size;
-	info->size+=next_info.size;
-	heap_block_init(heap, info);
-	}
-if(info->size>=size+BLOCK_SIZE_MIN)
-	{
-	heap_block_info_t free_info;
-	free_info.offset=info->offset+size;
-	free_info.size=info->size-size;
-	free_info.free=false;
-	void* free_buf=heap_block_init(heap, &free_info);
-	heap_free_to_cache(heap, free_buf);
-	info->size=size;
-	heap_block_init(heap, info);
-	}
-return true;
-}
+//bool heap_realloc_inplace(heap_handle_t heap, heap_block_info_t* info, size_t size) // Deprecated
+//{
+//heap_t* heap_ptr=(heap_t*)heap;
+//if(info->size<size)
+//	{
+//	size_t next_offset=info->offset+info->size;
+//	void* next_buf=heap_block_get_pointer(next_offset);
+//	heap_block_info_t next_info;
+//	heap_block_get_info(heap, next_buf, &next_info);
+//	if(!next_info.free)
+//		return false;
+//	if(info->size+next_info.size<size)
+//		return false;
+//	block_map_remove_block(heap, &heap_ptr->map_free, &next_info);
+//	heap_ptr->free-=next_info.size;
+//	info->size+=next_info.size;
+//	heap_block_init(heap, info);
+//	}
+//if(info->size>=size+BLOCK_SIZE_MIN)
+//	{
+//	heap_block_info_t free_info;
+//	free_info.offset=info->offset+size;
+//	free_info.size=info->size-size;
+//	free_info.free=false;
+//	void* free_buf=heap_block_init(heap, &free_info);
+//	heap_free_to_cache(heap, free_buf);
+//	info->size=size;
+//	heap_block_init(heap, info);
+//	}
+//return true;
+//}

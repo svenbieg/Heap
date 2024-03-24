@@ -38,6 +38,6 @@ void* heap_alloc_internal(heap_handle_t heap, size_t size);
 void heap_free_cache(heap_handle_t heap);
 void heap_free_to_cache(heap_handle_t heap, void* buf);
 void heap_free_to_map(heap_handle_t heap, void* buf);
-bool heap_realloc_inplace(heap_handle_t heap, heap_block_info_t* info, size_t size);
+//bool heap_realloc_inplace(heap_handle_t heap, heap_block_info_t* info, size_t size); // Deprecated
 
 #endif // _HEAP_PRIVATE_H
