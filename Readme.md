@@ -5,7 +5,7 @@ This memory-manager is based on my <a href="http://www.github.com/svenbieg/clust
 Free space is mapped by size and by offset, so the smallest free block top most of the heap is returned.
 </p><br />
 
-<img src="https://github.com/svenbieg/Heap/assets/12587394/20f9e75f-6bd3-4a2b-8b9d-996acca5416f" /><br />
+<img src="https://github.com/svenbieg/Heap/assets/12587394/8312cb0e-1baf-4a9a-afa8-9c6c926c9e99.jpg" /><br />
 <br />
 
 <p>
