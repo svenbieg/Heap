@@ -2,17 +2,16 @@
 
 <p>
 This memory-manager is based on my <a href="http://www.github.com/svenbieg/clusters">Clusters</a> sorting-algorithm.<br />
-Free space is mapped by size and by offset, so the smallest free block top most of the heap is returned.<br />
-It should speed up the system and make a garbage collector unnecessary.<br />
+Free space is mapped by size and by offset, so the smallest free block top most of the heap is returned.
 </p><br />
 
-<img src="https://github.com/svenbieg/Heap/assets/12587394/20f9e75f-6bd3-4a2b-8b9d-996acca5416f" /><br />
+<img src="https://github.com/svenbieg/Heap/assets/12587394/97c5c116-f0f3-4641-a33c-58dbc116bfb3.jpg" /><br />
 <br />
 
 <p>
 You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.<br />
 <br /><br />
-Please use at Your own risk!<br />
+Please take with care!<br />
 <br />
 Best regards,<br />
 <br />
