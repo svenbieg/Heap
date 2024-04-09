@@ -45,7 +45,7 @@ return value&~(align-1);
 
 static inline size_t align_up(size_t value, size_t align)
 {
-return (value+align-1)&~(align-1);
+return value+(align-value%align)%align;
 }
 
 #endif // _HEAP_INTERNAL_H
