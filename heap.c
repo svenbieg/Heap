@@ -237,3 +237,14 @@ block_map_add_block(heap, &heap_ptr->map_free, &info.current);
 //	}
 //return true;
 //}
+
+
+//========
+// Common
+//========
+
+size_t heap_available(heap_handle_t heap)
+{
+heap_t* heap_ptr=(heap_t*)heap;
+return heap_ptr->free+(heap_ptr->size-heap_ptr->used);
+}

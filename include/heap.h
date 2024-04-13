@@ -39,6 +39,9 @@ void* heap_alloc_aligned(heap_handle_t heap, size_t size, size_t align);
 void heap_free(heap_handle_t heap, void* buffer);
 //void* heap_realloc(heap_handle_t heap, void* buffer, size_t size); // Deprecated
 
+// Common
+size_t heap_available(heap_handle_t heap);
+
 #ifdef __cplusplus
 }
 #endif
