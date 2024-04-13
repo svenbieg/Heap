@@ -6,7 +6,7 @@
 // Memory-access needs to be 32 bit in IRAM.
 
 // Copyright 2024, Sven Bieg (svenbieg@web.de)
-// http://github.com/svenbieg/heap
+// http://github.com/svenbieg/Heap
 
 
 #ifndef _CLUSTER_GROUP_H

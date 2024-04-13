@@ -5,7 +5,7 @@
 // Shared functions for block_map and offset_index.
 
 // Copyright 2024, Sven Bieg (svenbieg@web.de)
-// http://github.com/svenbieg/heap
+// http://github.com/svenbieg/Heap
 
 
 #ifndef _PARENT_GROUP_H

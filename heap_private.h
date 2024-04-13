@@ -5,7 +5,7 @@
 // Internal heap functions
 
 // Copyright 2024, Sven Bieg (svenbieg@web.de)
-// http://github.com/svenbieg/heap
+// http://github.com/svenbieg/Heap
 
 #ifndef _HEAP_PRIVATE_H
 #define _HEAP_PRIVATE_H
