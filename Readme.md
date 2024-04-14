@@ -11,8 +11,6 @@ Free space is mapped by size and by offset, so the smallest free block top most 
 <p>
 You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.<br />
 <br /><br />
-Please take with care!<br />
-<br />
 Best regards,<br />
 <br />
 Sven Bieg
