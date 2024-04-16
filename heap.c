@@ -10,6 +10,7 @@
 // Using
 //=======
 
+#include "heap_internal.h"
 #include "heap_private.h"
 
 
@@ -98,9 +99,9 @@ heap_free_cache(heap);
 //}
 
 
-//==========
-// Internal
-//==========
+//=====================
+// Internal Allocation
+//=====================
 
 void* heap_alloc_from_foot(heap_handle_t heap, size_t size)
 {
@@ -151,13 +152,11 @@ void heap_free_cache(heap_handle_t heap)
 {
 heap_t* heap_ptr=(heap_t*)heap;
 size_t free_block=heap_ptr->free_block;
-heap_ptr->free_block=0;
-while(free_block)
-	{
-	size_t* buf=(size_t*)heap_block_get_pointer(free_block);
-	free_block=*buf;
-	heap_free_to_map(heap, buf);
-	}
+if(!free_block)
+	return;
+size_t* buf=(size_t*)heap_block_get_pointer(free_block);
+heap_ptr->free_block=*buf;
+heap_free_to_map(heap, buf);
 }
 
 void heap_free_to_cache(heap_handle_t heap, void* buf)
@@ -198,12 +197,19 @@ if(info.next.free)
 	block_map_remove_block(heap, &heap_ptr->map_free, &info.next);
 	heap_ptr->free-=info.next.size;
 	}
-heap_ptr->free+=size;
 info.current.offset=offset;
 info.current.size=size;
 info.current.free=true;
 heap_block_init(heap, &info.current);
-block_map_add_block(heap, &heap_ptr->map_free, &info.current);
+if(!block_map_add_block(heap, &heap_ptr->map_free, &info.current))
+	{
+	info.current.free=false;
+	heap_block_init(heap, &info.current);
+	buf=heap_block_get_pointer(info.current.offset);
+	heap_free_to_cache(heap, buf);
+	return;
+	}
+heap_ptr->free+=size;
 }
 
 //bool heap_realloc_inplace(heap_handle_t heap, heap_block_info_t* info, size_t size) // Deprecated
@@ -247,4 +253,13 @@ size_t heap_available(heap_handle_t heap)
 {
 heap_t* heap_ptr=(heap_t*)heap;
 return heap_ptr->free+(heap_ptr->size-heap_ptr->used);
+}
+
+size_t heap_get_largest_free_block(heap_handle_t heap)
+{
+heap_t* heap_ptr=(heap_t*)heap;
+size_t largest=0;
+largest=block_map_get_last_size(&heap_ptr->map_free);
+largest=max(largest, heap_ptr->size-heap_ptr->used);
+return largest;
 }

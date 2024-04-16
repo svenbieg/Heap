@@ -24,6 +24,8 @@
 
 size_t offset_index_group_get_first_offset(offset_index_group_t* group)
 {
+if(group==NULL)
+	return 0;
 if(cluster_group_get_level(group)==0)
 	return offset_index_item_group_get_first_offset((offset_index_item_group_t*)group);
 return ((offset_index_parent_group_t*)group)->first_offset;
@@ -31,6 +33,8 @@ return ((offset_index_parent_group_t*)group)->first_offset;
 
 size_t offset_index_group_get_last_offset(offset_index_group_t* group)
 {
+if(group==NULL)
+	return 0;
 if(cluster_group_get_level(group)==0)
 	return offset_index_item_group_get_last_offset((offset_index_item_group_t*)group);
 return ((offset_index_parent_group_t*)group)->last_offset;
@@ -244,6 +248,7 @@ uint16_t pos=0;
 for(; pos<child_count; pos++)
 	{
 	size_t first_offset=offset_index_group_get_first_offset(group->children[pos]);
+	assert(offset!=0);
 	if(offset<first_offset)
 		break;
 	size_t last_offset=offset_index_group_get_last_offset(group->children[pos]);

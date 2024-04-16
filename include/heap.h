@@ -41,6 +41,7 @@ void heap_free(heap_handle_t heap, void* buffer);
 
 // Common
 size_t heap_available(heap_handle_t heap);
+size_t heap_get_largest_free_block(heap_handle_t heap);
 
 #ifdef __cplusplus
 }

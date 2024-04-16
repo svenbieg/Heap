@@ -147,7 +147,16 @@ map->root=NULL;
 // Access
 static inline size_t block_map_get_item_count(block_map_t* map)
 {
+if(map==NULL)
+	return 0;
 return cluster_group_get_item_count((cluster_group_t*)map->root);
+}
+
+static inline size_t block_map_get_last_size(block_map_t* map)
+{
+if(map==NULL)
+	return 0;
+return block_map_group_get_last_size(map->root);
 }
 
 
