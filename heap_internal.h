@@ -2,8 +2,6 @@
 // heap_internal.h
 //=================
 
-// Heap platform header
-
 // Copyright 2024, Sven Bieg (svenbieg@web.de)
 // http://github.com/svenbieg/Heap
 
@@ -35,9 +33,7 @@
 //===========
 
 #define SIZE_BITS (sizeof(size_t)*8)
-#define SIZE_BYTES sizeof(size_t)
-
-#define BLOCK_SIZE_MIN (3*SIZE_BYTES)
+#define BLOCK_SIZE_MIN (4*sizeof(size_t))
 
 static inline size_t align_down(size_t value, size_t align)
 {
@@ -48,5 +44,27 @@ static inline size_t align_up(size_t value, size_t align)
 {
 return value+(align-value%align)%align;
 }
+
+
+//======
+// Heap
+//======
+
+typedef struct
+{
+size_t free;
+size_t used;
+size_t size;
+size_t free_block;
+size_t map_free;
+}heap_t;
+
+void* heap_alloc_from_foot(heap_handle_t heap, size_t size);
+void* heap_alloc_from_map(heap_handle_t heap, size_t size);
+void* heap_alloc_internal(heap_handle_t heap, size_t size);
+void heap_free_cache(heap_handle_t heap);
+void heap_free_to_cache(heap_handle_t heap, void* buf);
+void heap_free_to_map(heap_handle_t heap, void* buf);
+//bool heap_realloc_inplace(heap_handle_t heap, heap_block_info_t* info, size_t size); // Deprecated
 
 #endif // _HEAP_INTERNAL_H

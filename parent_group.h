@@ -47,6 +47,7 @@ int16_t parent_group_get_nearest_space(parent_group_t* group, int16_t pos);
 //==============
 
 void parent_group_append_groups(parent_group_t* group, cluster_group_t* const* append, uint16_t count);
+void parent_group_cleanup(heap_handle_t heap, parent_group_t* group);
 void parent_group_insert_groups(parent_group_t* group, uint16_t at, cluster_group_t* const* insert, uint16_t count);
 void parent_group_remove_group(heap_handle_t heap, parent_group_t* group, uint16_t at);
 void parent_group_remove_groups(parent_group_t* group, uint16_t at, uint16_t count);

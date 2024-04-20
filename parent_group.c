@@ -10,7 +10,6 @@
 // Using
 //=======
 
-#include "heap_private.h"
 #include "parent_group.h"
 
 
@@ -71,6 +70,25 @@ for(uint16_t u=0; u<count; u++)
 	group->item_count+=cluster_group_get_item_count(append[u]);
 	}
 cluster_group_set_child_count((cluster_group_t*)group, child_count+count);
+}
+
+void parent_group_cleanup(heap_handle_t heap, parent_group_t* group)
+{
+if(!cluster_group_is_dirty((cluster_group_t*)group))
+	return;
+uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
+for(uint16_t pos=0; pos<child_count; )
+	{
+	uint16_t count=cluster_group_get_child_count((cluster_group_t*)group->children[pos]);
+	if(count==0)
+		{
+		parent_group_remove_group(heap, (parent_group_t*)group, pos);
+		child_count--;
+		continue;
+		}
+	pos++;
+	}
+cluster_group_set_dirty((cluster_group_t*)group, false);
 }
 
 void parent_group_insert_groups(parent_group_t* group, uint16_t at, cluster_group_t* const* insert, uint16_t count)

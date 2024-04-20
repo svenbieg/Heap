@@ -10,7 +10,7 @@
 // Using
 //=======
 
-#include "heap_private.h"
+#include "block_map.h"
 #include "parent_group.h"
 
 
@@ -45,10 +45,10 @@ return ((block_map_parent_group_t*)group)->last_size;
 
 // Modification
 
-bool block_map_group_add_block(heap_handle_t heap, block_map_group_t* group, heap_block_info_t const* info, bool again)
+int16_t block_map_group_add_block(heap_handle_t heap, block_map_group_t* group, heap_block_info_t const* info, bool again)
 {
 cluster_group_set_locked((cluster_group_t*)group, true);
-bool added=false;
+int16_t added=0;
 if(cluster_group_get_level(group)==0)
 	{
 	added=block_map_item_group_add_block(heap, (block_map_item_group_t*)group, info);
@@ -61,7 +61,7 @@ cluster_group_set_locked((cluster_group_t*)group, false);
 return added;
 }
 
-bool block_map_group_get_block(heap_handle_t heap, block_map_group_t* group, size_t min_size, heap_block_info_t* info)
+int16_t block_map_group_get_block(heap_handle_t heap, block_map_group_t* group, size_t min_size, heap_block_info_t* info)
 {
 bool passive=cluster_group_is_locked((cluster_group_t*)group);
 if(cluster_group_get_level(group)==0)
@@ -69,7 +69,7 @@ if(cluster_group_get_level(group)==0)
 return block_map_parent_group_get_block(heap, (block_map_parent_group_t*)group, min_size, info, passive);
 }
 
-bool block_map_group_remove_block(heap_handle_t heap, block_map_group_t* group, heap_block_info_t const* info)
+uint16_t block_map_group_remove_block(heap_handle_t heap, block_map_group_t* group, heap_block_info_t const* info)
 {
 if(cluster_group_get_level(group)==0)
 	return block_map_item_group_remove_block(heap, (block_map_item_group_t*)group, info);
@@ -147,12 +147,16 @@ return group->items[child_count-1].size;
 
 // Modification
 
-bool block_map_item_group_add_block(heap_handle_t heap, block_map_item_group_t* group, heap_block_info_t const* info)
+int16_t block_map_item_group_add_block(heap_handle_t heap, block_map_item_group_t* group, heap_block_info_t const* info)
 {
 bool exists=false;
 uint16_t pos=block_map_item_group_get_item_pos(group, info->size, &exists);
 if(!exists)
-	return block_map_item_group_add_item(group, info, pos);
+	{
+	if(!block_map_item_group_add_item(group, info, pos))
+		return -1;
+	return 1;
+	}
 block_map_item_t* item=block_map_item_group_get_item_at(group, pos);
 bool added=false;
 if(item->single)
@@ -161,21 +165,18 @@ if(item->single)
 	offset_index_init(&index);
 	added=offset_index_add_offset(heap, &index, info->offset);
 	if(!added)
-		return false;
+		return -1;
 	if(item->offset)
 		offset_index_add_offset(heap, &index, item->offset);
 	item->index=index;
+	item->single=false;
 	}
 else
 	{
 	added=offset_index_add_offset(heap, &item->index, info->offset);
 	}
-if(cluster_group_is_dirty((cluster_group_t*)group))
-	{
-	block_map_item_group_cleanup(group);
-	cluster_group_set_dirty((cluster_group_t*)group, false);
-	}
-return added;
+block_map_item_group_cleanup(group);
+return 0;
 }
 
 bool block_map_item_group_add_item(block_map_item_group_t* group, heap_block_info_t const* info, uint16_t at)
@@ -202,6 +203,8 @@ cluster_group_set_child_count((cluster_group_t*)group, child_count+count);
 
 void block_map_item_group_cleanup(block_map_item_group_t* group)
 {
+if(!cluster_group_is_dirty((cluster_group_t*)group))
+	return;
 uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
 for(uint16_t pos=0; pos<child_count; )
 	{
@@ -217,15 +220,16 @@ for(uint16_t pos=0; pos<child_count; )
 		}
 	}
 cluster_group_set_child_count((cluster_group_t*)group, child_count);
+cluster_group_set_dirty((cluster_group_t*)group, false);
 }
 
-bool block_map_item_group_get_block(heap_handle_t heap, block_map_item_group_t* group, size_t min_size, heap_block_info_t* info, bool passive)
+int16_t block_map_item_group_get_block(heap_handle_t heap, block_map_item_group_t* group, size_t min_size, heap_block_info_t* info, bool passive)
 {
 uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
 bool exists=false;
 uint16_t pos=block_map_item_group_get_item_pos(group, min_size, &exists);
 if(pos==child_count)
-	return false;
+	return -1;
 block_map_item_t* item=block_map_item_group_get_item_at(group, pos);
 assert(item->offset!=0);
 info->size=item->size;
@@ -233,14 +237,15 @@ if(item->single)
 	{
 	info->offset=item->offset;
 	block_map_item_group_remove_item_at(group, pos, passive);
+	return 1;
 	}
-else
+info->offset=offset_index_remove_offset_at(heap, &item->index, 0);
+if(!item->offset)
 	{
-	info->offset=offset_index_remove_offset_at(heap, &item->index, 0);
-	if(!item->offset)
-		block_map_item_group_remove_item_at(group, pos, passive);
+	block_map_item_group_remove_item_at(group, pos, passive);
+	return 1;
 	}
-return true;
+return 0;
 }
 
 void block_map_item_group_insert_items(block_map_item_group_t* group, uint16_t pos, block_map_item_t const* items, uint16_t count)
@@ -253,7 +258,7 @@ for(uint16_t u=0; u<count; u++)
 cluster_group_set_child_count((cluster_group_t*)group, child_count+count);
 }
 
-bool block_map_item_group_remove_block(heap_handle_t heap, block_map_item_group_t* group, heap_block_info_t const* info)
+uint16_t block_map_item_group_remove_block(heap_handle_t heap, block_map_item_group_t* group, heap_block_info_t const* info)
 {
 bool exists=false;
 uint16_t pos=block_map_item_group_get_item_pos(group, info->size, &exists);
@@ -263,14 +268,15 @@ if(item->single)
 	{
 	assert(item->offset==info->offset);
 	block_map_item_group_remove_item_at(group, pos, false);
+	return 1;
 	}
-else
+offset_index_remove_offset(heap, &item->index, info->offset);
+if(!item->offset)
 	{
-	offset_index_remove_offset(heap, &item->index, info->offset);
-	if(!item->offset)
-		block_map_item_group_remove_item_at(group, pos, false);
+	block_map_item_group_remove_item_at(group, pos, false);
+	return 1;
 	}
-return true;
+return 0;
 }
 
 size_t block_map_item_group_remove_item_at(block_map_item_group_t* group, size_t at, bool passive)
@@ -383,21 +389,18 @@ return 2;
 
 // Modification
 
-bool block_map_parent_group_add_block(heap_handle_t heap, block_map_parent_group_t* group, heap_block_info_t const* info, bool again)
+int16_t block_map_parent_group_add_block(heap_handle_t heap, block_map_parent_group_t* group, heap_block_info_t const* info, bool again)
 {
-if(!block_map_parent_group_add_block_internal(heap, group, info, again))
-	return false;
-group->item_count++;
+int16_t added=block_map_parent_group_add_block_internal(heap, group, info, again);
+if(added<0)
+	return -1;
+group->item_count+=added;
 block_map_parent_group_update_bounds(group);
-if(cluster_group_is_dirty((cluster_group_t*)group))
-	{
-	block_map_parent_group_combine_children(heap, group);
-	cluster_group_set_dirty((cluster_group_t*)group, false);
-	}
-return true;
+parent_group_cleanup(heap, (parent_group_t*)group);
+return added;
 }
 
-bool block_map_parent_group_add_block_internal(heap_handle_t heap, block_map_parent_group_t* group, heap_block_info_t const* info, bool again)
+int16_t block_map_parent_group_add_block_internal(heap_handle_t heap, block_map_parent_group_t* group, heap_block_info_t const* info, bool again)
 {
 uint16_t pos=0;
 uint16_t count=block_map_parent_group_get_item_pos(group, info->size, &pos, false);
@@ -405,28 +408,31 @@ if(!again)
 	{
 	for(uint16_t u=0; u<count; u++)
 		{
-		if(block_map_group_add_block(heap, group->children[pos+u], info, false))
-			return true;
+		int16_t added=block_map_group_add_block(heap, group->children[pos+u], info, false);
+		if(added>=0)
+			return added;
 		}
 	if(block_map_parent_group_shift_children(group, pos, count))
 		{
 		count=block_map_parent_group_get_item_pos(group, info->size, &pos, false);
 		for(uint16_t u=0; u<count; u++)
 			{
-			if(block_map_group_add_block(heap, group->children[pos+u], info, false))
-				return true;
+			int16_t added=block_map_group_add_block(heap, group->children[pos+u], info, false);
+			if(added>=0)
+				return added;
 			}
 		}
 	}
 if(!block_map_parent_group_split_child(heap, group, pos))
-	return false;
+	return -1;
 count=block_map_parent_group_get_item_pos(group, info->size, &pos, false);
 for(uint16_t u=0; u<count; u++)
 	{
-	if(block_map_group_add_block(heap, group->children[pos+u], info, true))
-		return true;
+	int16_t added=block_map_group_add_block(heap, group->children[pos+u], info, true);
+	if(added>=0)
+		return added;
 	}
-return false;
+return -1;
 }
 
 void block_map_parent_group_append_groups(block_map_parent_group_t* group, block_map_group_t* const* append, uint16_t count)
@@ -467,31 +473,16 @@ if(pos+1<child_count)
 return false;
 }
 
-void block_map_parent_group_combine_children(heap_handle_t heap, block_map_parent_group_t* group)
-{
-uint16_t child_count=cluster_group_get_child_count((cluster_group_t*)group);
-for(uint16_t pos=0; pos<child_count; )
-	{
-	if(block_map_parent_group_combine_child(heap, group, pos))
-		{
-		child_count--;
-		}
-	else
-		{
-		pos++;
-		}
-	}
-}
-
-bool block_map_parent_group_get_block(heap_handle_t heap, block_map_parent_group_t* group, size_t min_size, heap_block_info_t* info, bool passive)
+int16_t block_map_parent_group_get_block(heap_handle_t heap, block_map_parent_group_t* group, size_t min_size, heap_block_info_t* info, bool passive)
 {
 uint16_t pos=0;
 uint16_t count=block_map_parent_group_get_item_pos(group, min_size, &pos, false);
 assert(count>0);
 if(count==2)
 	pos++;
-if(!block_map_group_get_block(heap, group->children[pos], min_size, info))
-	return false;
+int16_t removed=block_map_group_get_block(heap, group->children[pos], min_size, info);
+if(removed<0)
+	return -1;
 if(passive)
 	{
 	cluster_group_set_dirty((cluster_group_t*)group, true);
@@ -500,9 +491,9 @@ else
 	{
 	block_map_parent_group_combine_child(heap, group, pos);
 	}
-group->item_count--;
+group->item_count-=removed;
 block_map_parent_group_update_bounds(group);
-return true;
+return removed;
 }
 
 void block_map_parent_group_insert_groups(block_map_parent_group_t* group, uint16_t at, block_map_group_t* const* insert, uint16_t count)
@@ -562,19 +553,16 @@ else
 	}
 }
 
-bool block_map_parent_group_remove_block(heap_handle_t heap, block_map_parent_group_t* group, heap_block_info_t const* info)
+uint16_t block_map_parent_group_remove_block(heap_handle_t heap, block_map_parent_group_t* group, heap_block_info_t const* info)
 {
 uint16_t pos=0;
 uint16_t count=block_map_parent_group_get_item_pos(group, info->size, &pos, true);
 assert(count==1);
-if(block_map_group_remove_block(heap, group->children[pos], info))
-	{
-	group->item_count--;
-	block_map_parent_group_combine_child(heap, group, pos);
-	block_map_parent_group_update_bounds(group);
-	return true;
-	}
-return false;
+uint16_t removed=block_map_group_remove_block(heap, group->children[pos], info);
+group->item_count-=removed;
+block_map_parent_group_combine_child(heap, group, pos);
+block_map_parent_group_update_bounds(group);
+return removed;
 }
 
 void block_map_parent_group_remove_groups(block_map_parent_group_t* group, uint16_t at, uint16_t count)
@@ -661,14 +649,14 @@ if(!map->root)
 	if(!map->root)
 		return false;
 	}
-if(block_map_group_add_block(heap, map->root, info, false))
+if(block_map_group_add_block(heap, map->root, info, false)>=0)
 	{
 	block_map_drop_root(heap, map);
 	return true;
 	}
 if(!block_map_lift_root(heap, map))
 	return false;
-if(!block_map_group_add_block(heap, map->root, info, true))
+if(block_map_group_add_block(heap, map->root, info, true)<0)
 	return false;
 block_map_drop_root(heap, map);
 return true;
@@ -695,7 +683,7 @@ bool block_map_get_block(heap_handle_t heap, block_map_t* map, size_t min_size, 
 {
 if(!map->root)
 	return false;
-if(block_map_group_get_block(heap, map->root, min_size, info))
+if(block_map_group_get_block(heap, map->root, min_size, info)>=0)
 	{
 	block_map_drop_root(heap, map);
 	return true;

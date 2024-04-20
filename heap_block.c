@@ -11,7 +11,6 @@
 //=======
 
 #include "heap_block.h"
-#include "heap_private.h"
 
 
 //==================

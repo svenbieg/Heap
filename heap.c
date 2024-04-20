@@ -10,8 +10,8 @@
 // Using
 //=======
 
-#include "heap_internal.h"
-#include "heap_private.h"
+#include "block_map.h"
+#include "heap_block.h"
 
 
 //==================
@@ -27,7 +27,7 @@ heap_ptr->free=size-sizeof(heap_t);
 heap_ptr->used=sizeof(heap_t);
 heap_ptr->size=size;
 heap_ptr->free_block=0;
-block_map_init(&heap_ptr->map_free);
+block_map_init((block_map_t*)&heap_ptr->map_free);
 return heap_ptr;
 }
 
@@ -121,7 +121,7 @@ void* heap_alloc_from_map(heap_handle_t heap, size_t size)
 {
 heap_t* heap_ptr=(heap_t*)heap;
 heap_block_info_t info;
-if(!block_map_get_block(heap, &heap_ptr->map_free, size, &info))
+if(!block_map_get_block(heap, (block_map_t*)&heap_ptr->map_free, size, &info))
 	return NULL;
 heap_ptr->free-=info.size;
 size_t free_size=info.size-size;
@@ -182,7 +182,7 @@ if(info.previous.free)
 	{
 	offset=info.previous.offset;
 	size+=info.previous.size;
-	block_map_remove_block(heap, &heap_ptr->map_free, &info.previous);
+	block_map_remove_block(heap, (block_map_t*)&heap_ptr->map_free, &info.previous);
 	heap_ptr->free-=info.previous.size;
 	}
 if(!info.next.offset)
@@ -194,14 +194,14 @@ if(!info.next.offset)
 if(info.next.free)
 	{
 	size+=info.next.size;
-	block_map_remove_block(heap, &heap_ptr->map_free, &info.next);
+	block_map_remove_block(heap, (block_map_t*)&heap_ptr->map_free, &info.next);
 	heap_ptr->free-=info.next.size;
 	}
 info.current.offset=offset;
 info.current.size=size;
 info.current.free=true;
 heap_block_init(heap, &info.current);
-if(!block_map_add_block(heap, &heap_ptr->map_free, &info.current))
+if(!block_map_add_block(heap, (block_map_t*)&heap_ptr->map_free, &info.current))
 	{
 	info.current.free=false;
 	heap_block_init(heap, &info.current);
@@ -259,7 +259,7 @@ size_t heap_get_largest_free_block(heap_handle_t heap)
 {
 heap_t* heap_ptr=(heap_t*)heap;
 size_t largest=0;
-largest=block_map_get_last_size(&heap_ptr->map_free);
+largest=block_map_get_last_size((block_map_t*)&heap_ptr->map_free);
 largest=max(largest, heap_ptr->size-heap_ptr->used);
 return largest;
 }
