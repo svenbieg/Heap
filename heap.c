@@ -252,7 +252,7 @@ heap_ptr->free+=size;
 size_t heap_available(heap_handle_t heap)
 {
 heap_t* heap_ptr=(heap_t*)heap;
-return heap_ptr->free+(heap_ptr->size-heap_ptr->used);
+return heap_ptr->free;
 }
 
 size_t heap_get_largest_free_block(heap_handle_t heap)
