@@ -17,20 +17,6 @@
 #include "heap.h"
 
 
-//=============
-// Concurrency
-//=============
-
-static inline bool heap_lock()
-{
-return true;
-}
-
-static inline void heap_unlock(bool locked)
-{
-}
-
-
 //======
 // Heap
 //======
