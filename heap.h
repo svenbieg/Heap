@@ -65,29 +65,6 @@ size_t map_free;
 typedef heap_t* heap_handle_t;
 
 
-// Creation
-heap_handle_t heap_create(size_t offset, size_t size);
-
-
-// Allocation
-void* heap_alloc(heap_handle_t heap, size_t size);
-void heap_free(heap_handle_t heap, void* buffer);
-
-
-// Internal Allocation
-void* heap_alloc_from_foot(heap_handle_t heap, size_t size);
-void* heap_alloc_from_map(heap_handle_t heap, size_t size);
-void* heap_alloc_internal(heap_handle_t heap, size_t size);
-void heap_free_cache(heap_handle_t heap);
-void heap_free_to_cache(heap_handle_t heap, void* buf);
-void heap_free_to_map(heap_handle_t heap, void* buf);
-
-
-// Statistics
-size_t heap_available(heap_handle_t heap);
-size_t heap_get_largest_free_block(heap_handle_t heap);
-
-
 //============
 // Heap-Block
 //============
@@ -507,6 +484,35 @@ bool block_map_drop_root(heap_handle_t heap, block_map_t* map);
 bool block_map_get_block(heap_handle_t heap, block_map_t* map, size_t min_size, heap_block_info_t* info);
 bool block_map_lift_root(heap_handle_t heap, block_map_t* map);
 void block_map_remove_block(heap_handle_t heap, block_map_t* map, heap_block_info_t const* info);
+
+
+//================
+// Heap-Functions
+//================
+
+// Creation
+heap_handle_t heap_create(size_t offset, size_t size);
+
+
+// Allocation
+void* heap_alloc(heap_handle_t heap, size_t size);
+void heap_free(heap_handle_t heap, void* buffer);
+void* heap_realloc(heap_handle_t heap, void* buffer, size_t size);
+
+
+// Internal Allocation
+void* heap_alloc_from_foot(heap_handle_t heap, size_t size);
+void* heap_alloc_from_map(heap_handle_t heap, size_t size);
+void* heap_alloc_internal(heap_handle_t heap, size_t size);
+void heap_free_cache(heap_handle_t heap);
+void heap_free_to_cache(heap_handle_t heap, void* buf);
+void heap_free_to_map(heap_handle_t heap, void* buf);
+bool heap_realloc_inplace(heap_handle_t heap, heap_block_info_t* info, size_t size);
+
+
+// Statistics
+size_t heap_available(heap_handle_t heap);
+size_t heap_get_largest_free_block(heap_handle_t heap);
 
 
 #endif // _HEAP_H
