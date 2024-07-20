@@ -50,7 +50,7 @@ return value+(align-value%align)%align;
 // Heap
 //======
 
-typedef struct _heap_t
+typedef struct
 {
 size_t free;
 size_t used;
@@ -68,7 +68,7 @@ void heap_free_to_map(heap_t* heap, void* buf);
 // Heap-Block
 //============
 
-typedef struct heap_block_info_t
+typedef struct
 {
 size_t offset;
 union
@@ -411,7 +411,7 @@ cluster_group_set_child_count((cluster_group_t*)group, child_count-count);
 
 typedef cluster_group_t offset_index_group_t;
 
-typedef struct offset_index_item_group_t
+typedef struct
 {
 cluster_group_t header;
 size_t items[CLUSTER_GROUP_SIZE];
@@ -621,7 +621,7 @@ cluster_group_set_child_count((cluster_group_t*)group, child_count-count);
 
 
 //===========================
-// Offset-Index-Parent-group
+// Offset-Index-Parent-Group
 //===========================
 
 bool offset_index_parent_group_add_offset_internal(heap_t* heap, offset_index_parent_group_t* group, size_t offset, bool again);
