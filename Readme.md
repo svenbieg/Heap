@@ -8,4 +8,4 @@ This memory-manager is based on my <a href="http://www.github.com/svenbieg/clust
 <br />
 
 <p>
-You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.<br />
+You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.
