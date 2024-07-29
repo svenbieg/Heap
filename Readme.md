@@ -9,10 +9,5 @@ This memory-manager is based on my <a href="http://www.github.com/svenbieg/clust
 
 <p>
 You can find detailed information in the <a href="https://github.com/svenbieg/Heap/wiki">Wiki</a>.<br />
-<br /><br />
-Best regards,<br />
-<br />
-Sven Bieg
-</p><br />
 
 <br /><br /><br /><br /><br />
