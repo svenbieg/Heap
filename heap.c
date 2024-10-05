@@ -71,6 +71,32 @@ if(free>largest)
 return largest;
 }
 
+void heap_reserve(heap_handle_t heap, size_t offset, size_t size)
+{
+assert(handle!=NULL);
+assert(size!=0);
+offset-=sizeof(size_t);
+size+=2*sizeof(size_t);
+size_t heap_start=(size_t)heap;
+size_t heap_used=heap_start+heap->used;
+size_t heap_end=heap_start+heap->size;
+assert(offset>heap_used);
+assert(offset+size<=heap_end);
+heap_block_info_t info;
+info.offset=heap_used;
+info.size=offset-heap_used;
+info.free=true;
+heap_block_init(heap, &info);
+heap->free+=info.size;
+heap->used+=info.size;
+block_map_add_block(heap, (block_map_t*)&heap->map_free, &info);
+info.offset=offset;
+info.size=size;
+info.free=false;
+heap_block_init(heap, &info);
+heap->used+=size;
+}
+
 
 //=====================
 // Internal Allocation

@@ -17,6 +17,10 @@
 // Using
 //=======
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -68,6 +72,7 @@ size_t heap_available(heap_handle_t heap);
 heap_handle_t heap_create(size_t offset, size_t size);
 void heap_free(heap_handle_t heap, void* buffer);
 size_t heap_get_largest_free_block(heap_handle_t heap);
+void heap_reserve(heap_handle_t handle, size_t offset, size_t size);
 
 
 //===============
@@ -424,5 +429,9 @@ map->root=NULL;
 bool block_map_lift_root(heap_t* heap, block_map_t* map);
 void block_map_remove_block(heap_t* heap, block_map_t* map, heap_block_info_t const* info);
 
+
+#ifdef __cplusplus // extern "C"
+}
+#endif
 
 #endif // _HEAP_H
