@@ -104,7 +104,7 @@ heap->used+=size;
 
 void* heap_alloc_from_cache(heap_t* heap, size_t size)
 {
-size_t* free_ptr=NULL;
+size_t* free_buf=NULL;
 size_t* current_ptr=&heap->free_block;
 while(*current_ptr)
 	{
@@ -118,9 +118,22 @@ while(*current_ptr)
 		*current_ptr=*buf;
 		return heap_block_init(heap, &info);
 		}
+	if(free_buf==NULL)
+		free_buf=buf;
 	current_ptr=buf;
 	}
-return NULL;
+if(!free_buf)
+	return NULL;
+heap_block_info_t info;
+heap_block_get_info(heap, free_buf, &info);
+size_t free_size=info.size-size;
+if(free_size<BLOCK_SIZE_MIN)
+	return NULL;
+info.size-=size;
+heap_block_init(heap, &info);
+info.offset+=free_size;
+info.size=size;
+return heap_block_init(heap, &info);
 }
 
 void* heap_alloc_from_foot(heap_t* heap, size_t size)
