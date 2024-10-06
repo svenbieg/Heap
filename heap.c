@@ -73,7 +73,7 @@ return largest;
 
 void heap_reserve(heap_handle_t heap, size_t offset, size_t size)
 {
-assert(handle!=NULL);
+assert(heap!=NULL);
 assert(size!=0);
 offset-=sizeof(size_t);
 size+=2*sizeof(size_t);
@@ -104,28 +104,21 @@ heap->used+=size;
 
 void* heap_alloc_from_cache(heap_t* heap, size_t size)
 {
-size_t* current=&heap->free_block;
-while(*current)
+size_t* free_ptr=NULL;
+size_t* current_ptr=&heap->free_block;
+while(*current_ptr)
 	{
+	size_t* buf=(size_t*)heap_block_get_pointer(*current_ptr);
 	heap_block_info_t info;
-	size_t* buf=(size_t*)heap_block_get_pointer(*current);
 	heap_block_get_info(heap, buf, &info);
-	if(info.size>=size)
+	if(info.size<size)
+		break;
+	if(info.size==size)
 		{
-		if(info.size>=size+BLOCK_SIZE_MIN)
-			{
-			heap_block_info_t free;
-			free.offset=info.offset+info.size-size;
-			free.size=size;
-			free.free=false;
-			info.size-=size;
-			heap_block_init(heap, &info);
-			return heap_block_init(heap, &free);
-			}
-		*current=*buf;
+		*current_ptr=*buf;
 		return heap_block_init(heap, &info);
 		}
-	current=buf;
+	current_ptr=buf;
 	}
 return NULL;
 }
@@ -170,9 +163,9 @@ return heap_block_init(heap, &info);
 void* heap_alloc_internal(heap_t* heap, size_t size)
 {
 size=heap_block_calc_size(size);
-void* buf=heap_alloc_from_map(heap, size);
+void* buf=heap_alloc_from_cache(heap, size);
 if(!buf)
-	buf=heap_alloc_from_cache(heap, size);
+	buf=heap_alloc_from_map(heap, size);
 if(!buf)
 	buf=heap_alloc_from_foot(heap, size);
 return buf;
