@@ -186,14 +186,11 @@ return buf;
 
 void heap_free_cache(heap_t* heap)
 {
-while(heap->free_block)
-	{
-	size_t* buf=(size_t*)heap_block_get_pointer(heap->free_block);
-	heap->free_block=*buf;
-	size_t size=heap_free_to_map(heap, buf);
-	if(size<=sizeof(block_map_parent_group_t)+2*sizeof(size_t))
-		break;
-	}
+if(!heap->free_block)
+	return;
+size_t* buf=(size_t*)heap_block_get_pointer(heap->free_block);
+heap->free_block=*buf;
+heap_free_to_map(heap, buf);
 }
 
 void heap_free_to_cache(heap_t* heap, void* buf)
