@@ -216,7 +216,7 @@ while(*last_ptr)
 *free_ptr=next;
 }
 
-size_t heap_free_to_map(heap_t* heap, void* buf)
+void heap_free_to_map(heap_t* heap, void* buf)
 {
 heap_block_chain_t info;
 heap_block_get_chain(heap, buf, &info);
@@ -237,7 +237,7 @@ if(!info.next.offset)
 	{
 	heap->free+=size;
 	heap->used-=size;
-	return size;
+	return;
 	}
 if(info.next.free)
 	{
@@ -255,11 +255,10 @@ if(added)
 	info.current.free=true;
 	heap_block_init(heap, &info.current);
 	heap->free+=size;
-	return size;
+	return;
 	}
 buf=heap_block_get_pointer(info.current.offset);
 heap_free_to_cache(heap, buf);
-return 0;
 }
 
 

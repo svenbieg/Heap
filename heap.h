@@ -85,7 +85,7 @@ void* heap_alloc_from_map(heap_t* heap, size_t size);
 void* heap_alloc_internal(heap_t* heap, size_t size);
 void heap_free_cache(heap_t* heap);
 void heap_free_to_cache(heap_t* heap, void* buf);
-size_t heap_free_to_map(heap_t* heap, void* buf);
+void heap_free_to_map(heap_t* heap, void* buf);
 
 
 //============
