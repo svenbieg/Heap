@@ -202,7 +202,7 @@ size_t* last_ptr=&heap->free_block;
 size_t next=0;
 while(*last_ptr)
 	{
-	size_t* next_ptr=heap_block_get_pointer(*last_ptr);
+	size_t* next_ptr=(size_t*)heap_block_get_pointer(*last_ptr);
 	heap_block_info_t next_info;
 	heap_block_get_info(heap, next_ptr, &next_info);
 	if(next_info.size<=free_info.size)

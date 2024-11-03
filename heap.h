@@ -324,7 +324,6 @@ block_map_group_t* children[CLUSTER_GROUP_SIZE];
 
 int16_t block_map_parent_group_add_block(heap_t* heap, block_map_parent_group_t* group, heap_block_info_t const* info, bool again);
 int16_t block_map_parent_group_add_block_internal(heap_t* heap, block_map_parent_group_t* group, heap_block_info_t const* info, bool again);
-void* block_map_parent_group_alloc(heap_t* heap, block_map_parent_group_t* group, size_t size);
 void block_map_parent_group_append_groups(block_map_parent_group_t* group, block_map_group_t* const* append, uint32_t count);
 bool block_map_parent_group_combine_child(heap_t* heap, block_map_parent_group_t* group, uint32_t pos);
 block_map_parent_group_t* block_map_parent_group_create(heap_t* heap, uint32_t level);
