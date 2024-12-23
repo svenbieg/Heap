@@ -20,7 +20,7 @@
 // Heap
 //======
 
-void* heap_alloc(heap_handle_t heap, size_t size)
+void* heap_alloc(heap_t* heap, size_t size)
 {
 assert(heap!=NULL);
 assert(size!=0);
@@ -29,14 +29,14 @@ heap_free_cache(heap);
 return buf;
 }
 
-size_t heap_available(heap_handle_t heap)
+size_t heap_available(heap_t* heap)
 {
 if(heap==NULL)
 	return 0;
 return heap->free;
 }
 
-heap_handle_t heap_create(size_t offset, size_t size)
+heap_t* heap_create(size_t offset, size_t size)
 {
 offset=align_up(offset, sizeof(size_t));
 size=align_down(size, sizeof(size_t));
@@ -50,7 +50,7 @@ block_map_init((block_map_t*)&heap->map_free);
 return heap;
 }
 
-void heap_free(heap_handle_t heap, void* buf)
+void heap_free(heap_t* heap, void* buf)
 {
 assert(heap!=NULL);
 if(!buf)
@@ -59,7 +59,7 @@ heap_free_to_map(heap, buf);
 heap_free_cache(heap);
 }
 
-size_t heap_get_largest_free_block(heap_handle_t heap)
+size_t heap_get_largest_free_block(heap_t* heap)
 {
 assert(heap!=NULL);
 size_t free=heap->size-heap->used;
@@ -71,7 +71,7 @@ if(free>largest)
 return largest;
 }
 
-void heap_reserve(heap_handle_t heap, size_t offset, size_t size)
+void heap_reserve(heap_t* heap, size_t offset, size_t size)
 {
 assert(heap!=NULL);
 assert(size!=0);

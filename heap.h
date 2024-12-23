@@ -65,14 +65,12 @@ size_t free_block;
 size_t map_free;
 }heap_t;
 
-typedef heap_t* heap_handle_t;
-
-void* heap_alloc(heap_handle_t heap, size_t size);
-size_t heap_available(heap_handle_t heap);
-heap_handle_t heap_create(size_t offset, size_t size);
-void heap_free(heap_handle_t heap, void* buffer);
-size_t heap_get_largest_free_block(heap_handle_t heap);
-void heap_reserve(heap_handle_t handle, size_t offset, size_t size);
+void* heap_alloc(heap_t* heap, size_t size);
+size_t heap_available(heap_t* heap);
+heap_t* heap_create(size_t offset, size_t size);
+void heap_free(heap_t* heap, void* buffer);
+size_t heap_get_largest_free_block(heap_t* heap);
+void heap_reserve(heap_t* handle, size_t offset, size_t size);
 
 
 //===============
