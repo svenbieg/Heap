@@ -5,7 +5,7 @@
 // Memory-manager for real-time C++ applications
 // Allocations and deletions are done in constant low time
 
-// Copyright 2024, Sven Bieg (svenbieg@web.de)
+// Copyright Sven Bieg 2025, all rights granted
 // http://github.com/svenbieg/Heap
 
 
