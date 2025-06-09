@@ -29,6 +29,34 @@ heap_free_cache(heap);
 return buf;
 }
 
+void* heap_alloc_aligned(heap_t* heap, size_t size, size_t align)
+{
+assert(heap!=NULL);
+assert(size!=0);
+assert(align!=0);
+assert(align>sizeof(size_t));
+assert(align%sizeof(size_t)==0);
+void* buf=heap_alloc_internal(heap, size+align);
+heap_free_cache(heap);
+size_t buf_pos=(size_t)buf;
+if(buf_pos%align==0)
+	return buf;
+size_t buf_aligned=align_up(buf_pos, align);
+align=buf_aligned-buf_pos;
+heap_block_info_t* info=(heap_block_info_t*)(buf_pos-sizeof(heap_block_info_t));
+info->aligned=true;
+info=(heap_block_info_t*)(buf_pos-sizeof(size_t));
+info->header=align;
+info->aligned=true;
+if(align>sizeof(size_t))
+	{
+	info=(heap_block_info_t*)(buf_aligned-sizeof(heap_block_info_t));
+	info->header=align;
+	info->aligned=true;
+	}
+return (void*)buf_aligned;
+}
+
 size_t heap_available(heap_t* heap)
 {
 if(heap==NULL)
@@ -55,6 +83,10 @@ void heap_free(heap_t* heap, void* buf)
 assert(heap!=NULL);
 if(!buf)
 	return;
+size_t offset=(size_t)buf;
+heap_block_info_t* info=(heap_block_info_t*)(offset-sizeof(heap_block_info_t));
+if(info->aligned)
+	buf=(void*)(offset-info->size);
 heap_free_to_map(heap, buf);
 heap_free_cache(heap);
 }
