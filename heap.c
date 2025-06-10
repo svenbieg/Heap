@@ -33,8 +33,7 @@ void* heap_alloc_aligned(heap_t* heap, size_t size, size_t align)
 {
 assert(heap!=NULL);
 assert(size!=0);
-assert(align!=0);
-assert(align>sizeof(size_t));
+assert(align>=sizeof(size_t));
 assert(align%sizeof(size_t)==0);
 void* buf=heap_alloc_internal(heap, size+align);
 heap_free_cache(heap);
