@@ -9,21 +9,15 @@
 // http://github.com/svenbieg/Heap
 
 
-#ifndef _HEAP_H
-#define _HEAP_H
+#pragma once
 
 
 //=======
 // Using
 //=======
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <assert.h>
-#include <stdbool.h>
-#include <stddef.h>
+#include <config.h>
 #include <stdint.h>
 
 
@@ -31,15 +25,16 @@ extern "C" {
 // Settings
 //==========
 
-#define CLUSTER_GROUP_SIZE 10
+constexpr uint32_t PARENT_GROUP_SIZE=(CACHE_LINE_SIZE-4-2*sizeof(size_t))/sizeof(size_t);
+constexpr uint32_t ITEM_GROUP_SIZE=(CACHE_LINE_SIZE-4)/sizeof(size_t);
 
 
 //===========
 // Alignment
 //===========
 
-#define BLOCK_SIZE_MIN (4*sizeof(size_t))
-#define SIZE_BITS (sizeof(size_t)*8)
+constexpr uint32_t BLOCK_SIZE_MIN=(4*sizeof(size_t));
+constexpr uint32_t SIZE_BITS=(sizeof(size_t)*8);
 
 static inline size_t align_down(size_t value, size_t align)
 {
@@ -162,7 +157,7 @@ typedef struct
 cluster_group_t header;
 size_t first;
 size_t last;
-cluster_group_t* children[CLUSTER_GROUP_SIZE];
+cluster_group_t* children[PARENT_GROUP_SIZE];
 }cluster_parent_group_t;
 
 void cluster_parent_group_append_groups(cluster_parent_group_t* group, cluster_group_t* const* append, uint32_t count);
@@ -193,7 +188,7 @@ void offset_index_group_remove_offset(heap_t* heap, offset_index_group_t* group,
 typedef struct
 {
 cluster_group_t header;
-size_t items[CLUSTER_GROUP_SIZE];
+size_t items[ITEM_GROUP_SIZE];
 }offset_index_item_group_t;
 
 bool offset_index_item_group_add_offset(offset_index_item_group_t* group, size_t offset);
@@ -218,7 +213,7 @@ typedef struct
 cluster_group_t header;
 size_t first_offset;
 size_t last_offset;
-offset_index_group_t* children[CLUSTER_GROUP_SIZE];
+offset_index_group_t* children[PARENT_GROUP_SIZE];
 }offset_index_parent_group_t;
 
 bool offset_index_parent_group_add_offset(heap_t* heap, offset_index_parent_group_t* group, size_t offset, bool again);
@@ -292,7 +287,7 @@ void block_map_group_remove_block(heap_t* heap, block_map_group_t* group, heap_b
 typedef struct
 {
 cluster_group_t header;
-block_map_item_t items[CLUSTER_GROUP_SIZE];
+block_map_item_t items[ITEM_GROUP_SIZE];
 }block_map_item_group_t;
 
 int16_t block_map_item_group_add_block(heap_t* heap, block_map_item_group_t* group, heap_block_info_t const* info);
@@ -319,7 +314,7 @@ typedef struct
 cluster_group_t header;
 size_t first_size;
 size_t last_size;
-block_map_group_t* children[CLUSTER_GROUP_SIZE];
+block_map_group_t* children[PARENT_GROUP_SIZE];
 }block_map_parent_group_t;
 
 int16_t block_map_parent_group_add_block(heap_t* heap, block_map_parent_group_t* group, heap_block_info_t const* info, bool again);
@@ -367,10 +362,3 @@ map->root=NULL;
 
 bool block_map_lift_root(heap_t* heap, block_map_t* map);
 void block_map_remove_block(heap_t* heap, block_map_t* map, heap_block_info_t const* info);
-
-
-#ifdef __cplusplus // extern "C"
-}
-#endif
-
-#endif // _HEAP_H
