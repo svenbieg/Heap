@@ -26,10 +26,9 @@
 //==========
 
 constexpr uint32_t PARENT_GROUP_MAX=(CACHE_LINE_SIZE-4-3*sizeof(size_t))/sizeof(size_t);
-constexpr uint32_t ITEM_GROUP_MAX=(CACHE_LINE_SIZE-4-sizeof(size_t))/sizeof(size_t);
 
-constexpr uint32_t PARENT_GROUP_COUNT=(PARENT_GROUP_MAX>10? 10: PARENT_GROUP_MAX);
-constexpr uint32_t ITEM_GROUP_COUNT=(ITEM_GROUP_MAX>10? 10: ITEM_GROUP_MAX);
+constexpr uint32_t PARENT_GROUP_COUNT=(PARENT_GROUP_MAX>12? 12: PARENT_GROUP_MAX);
+constexpr uint32_t ITEM_GROUP_COUNT=(CACHE_LINE_SIZE-4-sizeof(size_t))/sizeof(size_t);
 
 
 //===========
