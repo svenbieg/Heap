@@ -25,17 +25,17 @@
 // Settings
 //==========
 
-constexpr uint32_t PARENT_GROUP_MAX=(CACHE_LINE_SIZE-4-4*sizeof(size_t))/sizeof(size_t);
+constexpr uint32_t PARENT_GROUP_MAX=(CACHE_LINE_SIZE-4-3*sizeof(size_t))/sizeof(size_t);
+constexpr uint32_t ITEM_GROUP_MAX=(CACHE_LINE_SIZE-4-sizeof(size_t))/sizeof(size_t);
 
-constexpr uint32_t PARENT_GROUP_COUNT=(PARENT_GROUP_MAX>12? 12: PARENT_GROUP_MAX);
-constexpr uint32_t ITEM_GROUP_COUNT=(CACHE_LINE_SIZE-4-2*sizeof(size_t))/sizeof(size_t);
+constexpr uint32_t PARENT_GROUP_COUNT=(PARENT_GROUP_MAX>10? 10: PARENT_GROUP_MAX);
+constexpr uint32_t ITEM_GROUP_COUNT=(ITEM_GROUP_MAX>10? 10: ITEM_GROUP_MAX);
 
 
 //===========
 // Alignment
 //===========
 
-constexpr uint32_t BLOCK_SIZE_MIN=CACHE_LINE_SIZE;
 constexpr uint32_t SIZE_BITS=(sizeof(size_t)*8);
 
 static inline size_t align_down(size_t value, size_t align)
