@@ -70,7 +70,7 @@ size=align_down(size, sizeof(size_t));
 assert(size>sizeof(heap_t));
 heap_t* heap=(heap_t*)offset;
 heap->free=size-sizeof(heap_t);
-heap->used=align_up(sizeof(heap_t), BLOCK_SIZE_MIN);
+heap->used=align_up(sizeof(heap_t), CACHE_LINE_SIZE)-sizeof(size_t);
 heap->size=size;
 heap->free_block=0;
 block_map_init((block_map_t*)&heap->map_free);
@@ -158,7 +158,7 @@ if(!free_buf)
 heap_block_info_t info;
 heap_block_get_info(heap, free_buf, &info);
 size_t free_size=info.size-size;
-if(free_size<BLOCK_SIZE_MIN)
+if(free_size<CACHE_LINE_SIZE)
 	return NULL;
 info.size-=size;
 heap_block_init(heap, &info);
@@ -190,7 +190,7 @@ if(!block_map_get_block(heap, map, size, &info))
 	return NULL;
 heap->free-=info.size;
 size_t free_size=info.size-size;
-if(free_size>=BLOCK_SIZE_MIN)
+if(free_size>=CACHE_LINE_SIZE)
 	{
 	heap_block_info_t free_info;
 	free_info.offset=info.offset+size;
