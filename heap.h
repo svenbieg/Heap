@@ -25,6 +25,8 @@
 // Settings
 //==========
 
+static_assert(CACHE_LINE_SIZE>=64);
+
 constexpr uint32_t PARENT_GROUP_MAX=(CACHE_LINE_SIZE-4-3*sizeof(size_t))/sizeof(size_t);
 constexpr uint32_t ITEM_GROUP_MAX=(CACHE_LINE_SIZE-4-sizeof(size_t))/sizeof(size_t);
 
