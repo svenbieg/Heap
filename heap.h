@@ -5,26 +5,22 @@
 // Memory-manager for real-time C++ applications
 // Allocations and deletions are done in constant low time
 
-// Copyright 2025, Sven Bieg (svenbieg@outlook.de)
+// Copyright 2026, Sven Bieg (svenbieg@outlook.de)
 // http://github.com/svenbieg/Heap
 
-
-#ifndef _HEAP_H
-#define _HEAP_H
+#pragma once
 
 
 //=======
 // Using
 //=======
 
+#include <stddef.h>
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <assert.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
 
 
 //==========
@@ -362,15 +358,13 @@ return block_map_group_get_last_size(map->root);
 
 static inline void block_map_init(block_map_t* map)
 {
-map->root=NULL;
+map->root=nullptr;
 }
 
 bool block_map_lift_root(heap_t* heap, block_map_t* map);
 void block_map_remove_block(heap_t* heap, block_map_t* map, heap_block_info_t const* info);
 
 
-#ifdef __cplusplus // extern "C"
-}
+#ifdef __cplusplus
+} // extern "C"
 #endif
-
-#endif // _HEAP_H

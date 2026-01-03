@@ -5,7 +5,7 @@
 // Memory-manager for real-time C++ applications
 // Allocations and deletions are done in constant low time
 
-// Copyright 2025, Sven Bieg (svenbieg@outlook.de)
+// Copyright 2026, Sven Bieg (svenbieg@outlook.de)
 // http://github.com/svenbieg/Heap
 
 
@@ -13,6 +13,7 @@
 // Using
 //=======
 
+#include <assert.h>
 #include "heap.h"
 
 
@@ -22,7 +23,7 @@
 
 void* heap_alloc(heap_t* heap, size_t size)
 {
-assert(heap!=NULL);
+assert(heap!=nullptr);
 assert(size!=0);
 void* buf=heap_alloc_internal(heap, size);
 heap_free_cache(heap);
@@ -31,7 +32,7 @@ return buf;
 
 void* heap_alloc_aligned(heap_t* heap, size_t size, size_t align)
 {
-assert(heap!=NULL);
+assert(heap!=nullptr);
 assert(size!=0);
 assert(align>=sizeof(size_t));
 assert(align%sizeof(size_t)==0);
@@ -58,7 +59,7 @@ return (void*)buf_aligned;
 
 size_t heap_available(heap_t* heap)
 {
-if(heap==NULL)
+if(heap==nullptr)
 	return 0;
 return heap->free;
 }
@@ -79,7 +80,7 @@ return heap;
 
 void heap_free(heap_t* heap, void* buf)
 {
-assert(heap!=NULL);
+assert(heap!=nullptr);
 if(!buf)
 	return;
 size_t offset=(size_t)buf;
@@ -92,7 +93,7 @@ heap_free_cache(heap);
 
 size_t heap_get_largest_free_block(heap_t* heap)
 {
-assert(heap!=NULL);
+assert(heap!=nullptr);
 size_t free=heap->size-heap->used;
 if(!heap->map_free)
 	return free;
@@ -104,7 +105,7 @@ return largest;
 
 void heap_reserve(heap_t* heap, size_t offset, size_t size)
 {
-assert(heap!=NULL);
+assert(heap!=nullptr);
 assert(size!=0);
 offset-=sizeof(size_t);
 size+=2*sizeof(size_t);
@@ -135,7 +136,7 @@ heap->used+=size;
 
 void* heap_alloc_from_cache(heap_t* heap, size_t size)
 {
-size_t* free_buf=NULL;
+size_t* free_buf=nullptr;
 size_t* current_ptr=&heap->free_block;
 while(*current_ptr)
 	{
@@ -149,17 +150,17 @@ while(*current_ptr)
 		*current_ptr=*buf;
 		return heap_block_init(heap, &info);
 		}
-	if(free_buf==NULL)
+	if(free_buf==nullptr)
 		free_buf=buf;
 	current_ptr=buf;
 	}
 if(!free_buf)
-	return NULL;
+	return nullptr;
 heap_block_info_t info;
 heap_block_get_info(heap, free_buf, &info);
 size_t free_size=info.size-size;
 if(free_size<BLOCK_SIZE_MIN)
-	return NULL;
+	return nullptr;
 info.size-=size;
 heap_block_init(heap, &info);
 info.offset+=free_size;
@@ -170,7 +171,7 @@ return heap_block_init(heap, &info);
 void* heap_alloc_from_foot(heap_t* heap, size_t size)
 {
 if(heap->used+size>heap->size)
-	return NULL;
+	return nullptr;
 heap_block_info_t info;
 info.offset=(size_t)heap+heap->used;
 info.size=size;
@@ -184,10 +185,10 @@ void* heap_alloc_from_map(heap_t* heap, size_t size)
 {
 block_map_t* map=(block_map_t*)&heap->map_free;
 if(!map->root)
-	return NULL;
+	return nullptr;
 heap_block_info_t info;
 if(!block_map_get_block(heap, map, size, &info))
-	return NULL;
+	return nullptr;
 heap->free-=info.size;
 size_t free_size=info.size-size;
 if(free_size>=BLOCK_SIZE_MIN)
@@ -472,7 +473,7 @@ return added;
 
 size_t offset_index_group_get_first_offset(offset_index_group_t* group)
 {
-if(group==NULL)
+if(group==nullptr)
 	return 0;
 if(group->level==0)
 	return offset_index_item_group_get_first_offset((offset_index_item_group_t*)group);
@@ -481,7 +482,7 @@ return ((offset_index_parent_group_t*)group)->first_offset;
 
 size_t offset_index_group_get_last_offset(offset_index_group_t* group)
 {
-if(group==NULL)
+if(group==nullptr)
 	return 0;
 if(group->level==0)
 	return offset_index_item_group_get_last_offset((offset_index_item_group_t*)group);
@@ -539,8 +540,8 @@ group->header.child_count+=count;
 offset_index_item_group_t* offset_index_item_group_create(heap_t* heap)
 {
 offset_index_item_group_t* group=(offset_index_item_group_t*)heap_alloc_internal(heap, sizeof(offset_index_item_group_t));
-if(group==NULL)
-	return NULL;
+if(group==nullptr)
+	return nullptr;
 group->header.value=0;
 return group;
 }
@@ -712,8 +713,8 @@ return false;
 offset_index_parent_group_t* offset_index_parent_group_create(heap_t* heap, uint32_t level)
 {
 offset_index_parent_group_t* group=(offset_index_parent_group_t*)heap_alloc_internal(heap, sizeof(offset_index_parent_group_t));
-if(group==NULL)
-	return NULL;
+if(group==nullptr)
+	return nullptr;
 group->header.value=0;
 group->header.level=level;
 group->first_offset=0;
@@ -724,8 +725,8 @@ return group;
 offset_index_parent_group_t* offset_index_parent_group_create_with_child(heap_t* heap, offset_index_group_t* child)
 {
 offset_index_parent_group_t* group=(offset_index_parent_group_t*)heap_alloc_internal(heap, sizeof(offset_index_parent_group_t));
-if(group==NULL)
-	return NULL;
+if(group==nullptr)
+	return nullptr;
 group->header.value=0;
 group->header.child_count=1;
 group->header.level=child->level+1;
@@ -873,7 +874,7 @@ bool offset_index_parent_group_split_child(heap_t* heap, offset_index_parent_gro
 uint32_t child_count=group->header.child_count;
 if(child_count==CLUSTER_GROUP_SIZE)
 	return false;
-offset_index_group_t* child=NULL;
+offset_index_group_t* child=nullptr;
 uint32_t level=group->header.level;
 if(level>1)
 	{
@@ -951,7 +952,7 @@ if(level==0)
 		}
 	if(child_count==0)
 		{
-		index->root=NULL;
+		index->root=nullptr;
 		heap_free_to_cache(heap, root);
 		}
 	return offset;
@@ -1049,7 +1050,7 @@ block_map_item_t* item=&group->items[pos];
 bool added=false;
 if(item->single)
 	{
-	offset_index_t index={ NULL };
+	offset_index_t index={ nullptr };
 	bool added=offset_index_add_offset(heap, &index, info->offset);
 	if(!added)
 		return -1;
@@ -1127,8 +1128,8 @@ group->header.dirty=false;
 block_map_item_group_t* block_map_item_group_create(heap_t* heap)
 {
 block_map_item_group_t* group=(block_map_item_group_t*)heap_alloc_internal(heap, sizeof(block_map_item_group_t));
-if(group==NULL)
-	return NULL;
+if(group==nullptr)
+	return nullptr;
 group->header.value=0;
 return group;
 }
@@ -1356,8 +1357,8 @@ return false;
 block_map_parent_group_t* block_map_parent_group_create(heap_t* heap, uint32_t level)
 {
 block_map_parent_group_t* group=(block_map_parent_group_t*)heap_alloc_internal(heap, sizeof(block_map_parent_group_t));
-if(group==NULL)
-	return NULL;
+if(group==nullptr)
+	return nullptr;
 group->header.value=0;
 group->header.level=level;
 group->first_size=0;
@@ -1368,8 +1369,8 @@ return group;
 block_map_parent_group_t* block_map_parent_group_create_with_child(heap_t* heap, block_map_group_t* child)
 {
 block_map_parent_group_t* group=(block_map_parent_group_t*)heap_alloc_internal(heap, sizeof(block_map_parent_group_t));
-if(group==NULL)
-	return NULL;
+if(group==nullptr)
+	return nullptr;
 group->header.value=0;
 group->header.child_count=1;
 group->header.level=child->level+1;
@@ -1524,7 +1525,7 @@ bool block_map_parent_group_split_child(heap_t* heap, block_map_parent_group_t* 
 uint32_t child_count=group->header.child_count;
 if(child_count==CLUSTER_GROUP_SIZE)
 	return false;
-block_map_group_t* child=NULL;
+block_map_group_t* child=nullptr;
 uint32_t level=group->header.level;
 if(level>1)
 	{
