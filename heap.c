@@ -93,21 +93,19 @@ size_t res_end=res_start+res_size;
 size_t heap_used=heap_start+heap->used;
 assert(res_start>heap_used);
 assert(res_end<heap_end);
-size_t free_start=heap_used;
-size_t free_end=res_start;
-size_t free_size=free_end-free_start;
-heap_block_info_t info;
-info.offset=free_start;
-info.size=free_size;
-info.free=true;
-heap_block_init(heap, &info);
-info.offset=res_start;
-info.size=res_size;
-info.free=false;
-heap_block_init(heap, &info);
+heap_block_info_t free_info;
+free_info.offset=heap_used;
+free_info.size=res_start-heap_used;
+free_info.free=true;
+heap_block_init(heap, &free_info);
+heap_block_info_t res_info;
+res_info.offset=res_start;
+res_info.size=res_size;
+res_info.free=false;
+heap_block_init(heap, &res_info);
 heap->used=res_end-heap_start;
 heap->free-=res_size;
-block_map_add_block(heap, (block_map_t*)&heap->map_free, &info);
+block_map_add_block(heap, (block_map_t*)&heap->map_free, &free_info);
 }
 
 
