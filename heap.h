@@ -62,7 +62,6 @@ size_t map_free;
 }heap_t;
 
 void* heap_alloc(heap_t* heap, size_t size);
-void* heap_alloc_aligned(heap_t* heap, size_t size, size_t align);
 size_t heap_available(heap_t* heap);
 heap_t* heap_create(size_t offset, size_t size);
 void heap_free(heap_t* heap, void* buffer);
@@ -94,8 +93,7 @@ union
 	{
 	struct
 		{
-		size_t size: SIZE_BITS-2;
-		size_t aligned: 1;
+		size_t size: SIZE_BITS-1;
 		size_t free: 1;
 		};
 	size_t header;
