@@ -78,26 +78,36 @@ void heap_reserve(heap_t* heap, size_t offset, size_t size)
 {
 assert(heap!=nullptr);
 assert(size!=0);
-offset-=sizeof(size_t);
-size+=2*sizeof(size_t);
+assert((size&0xFFFF)==0);
 size_t heap_start=(size_t)heap;
-size_t heap_used=heap_start+heap->used;
 size_t heap_end=heap_start+heap->size;
-assert(offset>heap_used);
-assert(offset+size<=heap_end);
+if(offset+size==heap_end)
+	{
+	heap->free-=size;
+	heap->size-=size;
+	return;
+	}
+size_t res_start=offset-sizeof(size_t);
+size_t res_size=size+2*sizeof(size_t);
+size_t res_end=res_start+res_size;
+size_t heap_used=heap_start+heap->used;
+assert(res_start>heap_used);
+assert(res_end<heap_end);
+size_t free_start=heap_used;
+size_t free_end=res_start;
+size_t free_size=free_end-free_start;
 heap_block_info_t info;
-info.offset=heap_used;
-info.size=offset-heap_used;
+info.offset=free_start;
+info.size=free_size;
 info.free=true;
 heap_block_init(heap, &info);
-heap->free+=info.size;
-heap->used+=info.size;
-block_map_add_block(heap, (block_map_t*)&heap->map_free, &info);
-info.offset=offset;
-info.size=size;
+info.offset=res_start;
+info.size=res_size;
 info.free=false;
 heap_block_init(heap, &info);
-heap->used+=size;
+heap->used=res_end-heap_start;
+heap->free-=res_size;
+block_map_add_block(heap, (block_map_t*)&heap->map_free, &info);
 }
 
 
@@ -1546,9 +1556,8 @@ for(uint32_t pos=child_count; pos>0; pos--)
 
 bool block_map_add_block(heap_t* heap, block_map_t* map, heap_block_info_t const* info)
 {
-heap_t* heap_ptr=(heap_t*)heap;
 assert(info->offset>=(size_t)heap+sizeof(heap_t));
-assert(info->offset<(size_t)heap+heap_ptr->used);
+assert(info->offset<(size_t)heap+heap->used);
 if(!map->root)
 	{
 	map->root=(block_map_group_t*)block_map_item_group_create(heap);
