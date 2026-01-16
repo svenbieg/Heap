@@ -4,7 +4,7 @@
 This memory-manager is based on my <a href="http://www.github.com/svenbieg/clusters">Clusters</a> sorting-algorithm. Allocations and deletions are done in constant low time.
 </p><br />
 
-<img src="https://github.com/svenbieg/Heap/assets/12587394/b3708f2e-b567-413a-98f4-91d7f50338ce.jpg" /><br />
+<img src="https://github.com/svenbieg/Heap/assets/12587394/45e83414-f464-4524-9742-27a10ec83356" /><br />
 <br />
 
 <p>
