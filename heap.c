@@ -71,17 +71,22 @@ block_map_init((block_map_t*)&heap->map_free);
 return heap;
 }
 
-void heap_free(heap_t* heap, void* buf)
+size_t heap_free(heap_t* heap, void* buf)
 {
 assert(heap!=nullptr);
 if(!buf)
-	return;
+	return 0;
 size_t offset=(size_t)buf;
 heap_block_info_t* info=(heap_block_info_t*)(offset-sizeof(heap_block_info_t));
 if(info->aligned)
-	buf=(void*)(offset-info->size);
+	{
+	offset-=info->size;
+	buf=(void*)offset;
+	info=(heap_block_info_t*)(offset-sizeof(heap_block_info_t));
+	}
 heap_free_to_map(heap, buf);
 heap_free_cache(heap);
+return info->size;
 }
 
 size_t heap_get_largest_free_block(heap_t* heap)
@@ -368,7 +373,7 @@ return head_ptr;
 void cluster_parent_group_append_groups(cluster_parent_group_t* group, cluster_group_t* const* append, uint32_t count)
 {
 uint32_t child_count=group->header.child_count;
-assert(child_count+count<=CLUSTER_GROUP_SIZE);
+assert(child_count+count<=HEAP_GROUP_SIZE);
 for(uint32_t u=0; u<count; u++)
 	group->children[child_count+u]=append[u];
 group->header.child_count+=count;
@@ -403,14 +408,14 @@ while(before>=0||after<child_count)
 	if(before>=0)
 		{
 		uint32_t count=group->children[before]->child_count;
-		if(count<CLUSTER_GROUP_SIZE)
+		if(count<HEAP_GROUP_SIZE)
 			return before;
 		before--;
 		}
 	if(after<child_count)
 		{
 		uint32_t count=group->children[after]->child_count;
-		if(count<CLUSTER_GROUP_SIZE)
+		if(count<HEAP_GROUP_SIZE)
 			return after;
 		after++;
 		}
@@ -422,7 +427,7 @@ void cluster_parent_group_insert_groups(cluster_parent_group_t* group, uint32_t 
 {
 uint32_t child_count=group->header.child_count;
 assert(pos<=child_count);
-assert(child_count+count<=CLUSTER_GROUP_SIZE);
+assert(child_count+count<=HEAP_GROUP_SIZE);
 for(uint32_t u=child_count+count-1; u>=pos+count; u--)
 	group->children[u]=group->children[u-count];
 for(uint32_t u=0; u<count; u++)
@@ -520,7 +525,7 @@ bool exists=false;
 uint32_t pos=offset_index_item_group_get_item_pos(group, offset, &exists);
 assert(!exists);
 uint32_t child_count=group->header.child_count;
-if(child_count==CLUSTER_GROUP_SIZE)
+if(child_count==HEAP_GROUP_SIZE)
 	return false;
 for(uint32_t u=child_count; u>pos; u--)
 	group->items[u]=group->items[u-1];
@@ -532,7 +537,7 @@ return true;
 void offset_index_item_group_append_items(offset_index_item_group_t* group, size_t const* append, uint32_t count)
 {
 uint32_t child_count=group->header.child_count;
-assert(child_count+count<=CLUSTER_GROUP_SIZE);
+assert(child_count+count<=HEAP_GROUP_SIZE);
 for(uint32_t u=0; u<count; u++)
 	group->items[child_count+u]=append[u];
 group->header.child_count+=count;
@@ -690,7 +695,7 @@ if(count==0)
 if(pos>0)
 	{
 	uint32_t before=group->children[pos-1]->child_count;
-	if(count+before<=CLUSTER_GROUP_SIZE)
+	if(count+before<=HEAP_GROUP_SIZE)
 		{
 		offset_index_parent_group_move_children(group, pos, pos-1, count);
 		cluster_parent_group_remove_group(heap, (cluster_parent_group_t*)group, pos);
@@ -701,7 +706,7 @@ uint32_t child_count=group->header.child_count;
 if(pos+1<child_count)
 	{
 	uint32_t after=group->children[pos+1]->child_count;
-	if(count+after<=CLUSTER_GROUP_SIZE)
+	if(count+after<=HEAP_GROUP_SIZE)
 		{
 		offset_index_parent_group_move_children(group, pos+1, pos, after);
 		cluster_parent_group_remove_group(heap, (cluster_parent_group_t*)group, pos+1);
@@ -873,7 +878,7 @@ return true;
 bool offset_index_parent_group_split_child(heap_t* heap, offset_index_parent_group_t* group, uint32_t at)
 {
 uint32_t child_count=group->header.child_count;
-if(child_count==CLUSTER_GROUP_SIZE)
+if(child_count==HEAP_GROUP_SIZE)
 	return false;
 offset_index_group_t* child=nullptr;
 uint32_t level=group->header.level;
@@ -1072,7 +1077,7 @@ return 1;
 bool block_map_item_group_add_item(block_map_item_group_t* group, heap_block_info_t const* info, uint32_t pos)
 {
 uint32_t child_count=group->header.child_count;
-if(child_count==CLUSTER_GROUP_SIZE)
+if(child_count==HEAP_GROUP_SIZE)
 	return false;
 for(uint32_t u=child_count; u>pos; u--)
 	group->items[u]=group->items[u-1];
@@ -1334,7 +1339,7 @@ if(count==0)
 if(pos>0)
 	{
 	uint32_t before=group->children[pos-1]->child_count;
-	if(count+before<=CLUSTER_GROUP_SIZE)
+	if(count+before<=HEAP_GROUP_SIZE)
 		{
 		block_map_parent_group_move_children(group, pos, pos-1, count);
 		cluster_parent_group_remove_group(heap, (cluster_parent_group_t*)group, pos);
@@ -1345,7 +1350,7 @@ uint32_t child_count=group->header.child_count;
 if(pos+1<child_count)
 	{
 	uint32_t after=group->children[pos+1]->child_count;
-	if(count+after<=CLUSTER_GROUP_SIZE)
+	if(count+after<=HEAP_GROUP_SIZE)
 		{
 		block_map_parent_group_move_children(group, pos+1, pos, after);
 		cluster_parent_group_remove_group(heap, (cluster_parent_group_t*)group, pos+1);
@@ -1524,7 +1529,7 @@ return true;
 bool block_map_parent_group_split_child(heap_t* heap, block_map_parent_group_t* group, uint32_t at)
 {
 uint32_t child_count=group->header.child_count;
-if(child_count==CLUSTER_GROUP_SIZE)
+if(child_count==HEAP_GROUP_SIZE)
 	return false;
 block_map_group_t* child=nullptr;
 uint32_t level=group->header.level;

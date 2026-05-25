@@ -27,7 +27,7 @@ extern "C" {
 // Settings
 //==========
 
-#define CLUSTER_GROUP_SIZE 10
+#define HEAP_GROUP_SIZE 10
 
 
 //===========
@@ -65,7 +65,7 @@ void* heap_alloc(heap_t* heap, size_t size);
 void* heap_alloc_aligned(heap_t* heap, size_t size, size_t align);
 size_t heap_available(heap_t* heap);
 heap_t* heap_create(size_t offset, size_t size);
-void heap_free(heap_t* heap, void* buffer);
+size_t heap_free(heap_t* heap, void* buffer);
 size_t heap_get_largest_free_block(heap_t* heap);
 void heap_reserve(heap_t* handle, size_t offset, size_t size);
 
@@ -158,7 +158,7 @@ typedef struct
 cluster_group_t header;
 size_t first;
 size_t last;
-cluster_group_t* children[CLUSTER_GROUP_SIZE];
+cluster_group_t* children[HEAP_GROUP_SIZE];
 }cluster_parent_group_t;
 
 void cluster_parent_group_append_groups(cluster_parent_group_t* group, cluster_group_t* const* append, uint32_t count);
@@ -189,7 +189,7 @@ void offset_index_group_remove_offset(heap_t* heap, offset_index_group_t* group,
 typedef struct
 {
 cluster_group_t header;
-size_t items[CLUSTER_GROUP_SIZE];
+size_t items[HEAP_GROUP_SIZE];
 }offset_index_item_group_t;
 
 bool offset_index_item_group_add_offset(offset_index_item_group_t* group, size_t offset);
@@ -214,7 +214,7 @@ typedef struct
 cluster_group_t header;
 size_t first_offset;
 size_t last_offset;
-offset_index_group_t* children[CLUSTER_GROUP_SIZE];
+offset_index_group_t* children[HEAP_GROUP_SIZE];
 }offset_index_parent_group_t;
 
 bool offset_index_parent_group_add_offset(heap_t* heap, offset_index_parent_group_t* group, size_t offset, bool again);
@@ -288,7 +288,7 @@ void block_map_group_remove_block(heap_t* heap, block_map_group_t* group, heap_b
 typedef struct
 {
 cluster_group_t header;
-block_map_item_t items[CLUSTER_GROUP_SIZE];
+block_map_item_t items[HEAP_GROUP_SIZE];
 }block_map_item_group_t;
 
 int16_t block_map_item_group_add_block(heap_t* heap, block_map_item_group_t* group, heap_block_info_t const* info);
@@ -315,7 +315,7 @@ typedef struct
 cluster_group_t header;
 size_t first_size;
 size_t last_size;
-block_map_group_t* children[CLUSTER_GROUP_SIZE];
+block_map_group_t* children[HEAP_GROUP_SIZE];
 }block_map_parent_group_t;
 
 int16_t block_map_parent_group_add_block(heap_t* heap, block_map_parent_group_t* group, heap_block_info_t const* info, bool again);
