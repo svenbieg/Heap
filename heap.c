@@ -71,22 +71,17 @@ block_map_init((block_map_t*)&heap->map_free);
 return heap;
 }
 
-size_t heap_free(heap_t* heap, void* buf)
+void heap_free(heap_t* heap, void* buf)
 {
 assert(heap!=nullptr);
 if(!buf)
-	return 0;
+	return;
 size_t offset=(size_t)buf;
 heap_block_info_t* info=(heap_block_info_t*)(offset-sizeof(heap_block_info_t));
 if(info->aligned)
-	{
-	offset-=info->size;
-	buf=(void*)offset;
-	info=(heap_block_info_t*)(offset-sizeof(heap_block_info_t));
-	}
+	buf=(void*)(offset-info->size);
 heap_free_to_map(heap, buf);
 heap_free_cache(heap);
-return info->size;
 }
 
 size_t heap_get_largest_free_block(heap_t* heap)

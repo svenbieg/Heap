@@ -65,7 +65,7 @@ void* heap_alloc(heap_t* heap, size_t size);
 void* heap_alloc_aligned(heap_t* heap, size_t size, size_t align);
 size_t heap_available(heap_t* heap);
 heap_t* heap_create(size_t offset, size_t size);
-size_t heap_free(heap_t* heap, void* buffer);
+void heap_free(heap_t* heap, void* buffer);
 size_t heap_get_largest_free_block(heap_t* heap);
 void heap_reserve(heap_t* handle, size_t offset, size_t size);
 
